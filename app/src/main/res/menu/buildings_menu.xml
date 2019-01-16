@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/harrison"
+        android:title="Harrison"
+        app:showAsAction="never"/>
+
+    <item
+        android:id="@+id/forum"
+        android:title="Forum"
+        app:showAsAction="never"/>
+
+    <item
+        android:id="@+id/innovation"
+        android:title="Innovation Centre"
+        app:showAsAction="never"/>
+</menu>
