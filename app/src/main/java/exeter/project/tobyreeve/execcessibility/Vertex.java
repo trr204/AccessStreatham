@@ -8,6 +8,8 @@ public class Vertex implements Comparable<Vertex>{
     private double longitude;
     private double heuristicValue;
     private float g;
+    private double widthScale;
+    private double heightScale;
 
     public Vertex() {}
 
@@ -102,4 +104,15 @@ public class Vertex implements Comparable<Vertex>{
         return g + heuristicValue;
     }
 
+    public double getWidthScale() {return widthScale;}
+
+    public void setWidthScale(double widthScale) {
+        this.widthScale = widthScale;
+    }
+
+    public double getHeightScale() {return heightScale;}
+
+    public void setHeightScale(double heightScale) {
+        this.heightScale = heightScale;
+    }
 }

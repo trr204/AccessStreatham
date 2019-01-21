@@ -36,37 +36,42 @@ public class MainActivity extends AppCompatActivity {
     MyCanvas canvas;
     ScrollView scrollView;
     HorizontalScrollView hScrollView;
+    int canvasWidth;
+    int canvasHeight;
     Vertex start;
     Vertex end;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        setUpGraph();
         scrollView = new ScrollView(this);
         hScrollView = new HorizontalScrollView(this);
         scrollView.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT));
         hScrollView.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT));
-        canvas = new MyCanvas(this);
+        canvas = new MyCanvas(this, campus);
         canvas.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT));
         scrollView.addView(canvas);
-        Bitmap tile = BitmapFactory.decodeResource(getResources(), R.drawable.z15_1_1);
-        scrollView.scrollTo(0, 4*tile.getHeight());
+        Bitmap tile = BitmapFactory.decodeResource(getResources(), R.drawable.test1);
+        canvasWidth = tile.getWidth();
+        canvasHeight = tile.getHeight();
+        scrollView.scrollTo(0, tile.getHeight());
         hScrollView.addView(scrollView);
-        hScrollView.scrollTo(6*tile.getWidth(), 0);
+        hScrollView.scrollTo(tile.getWidth(), 0);
 
         setContentView(hScrollView);
 
-        setUpGraph();
 
+        Toast.makeText(this, String.valueOf(canvasWidth) + "/" + String.valueOf(canvasHeight), Toast.LENGTH_LONG).show();
 
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.settings_menu, menu);
+        getMenuInflater().inflate(R.menu.settings_menu, menu);
         return true;
     }
 
@@ -148,7 +153,6 @@ public class MainActivity extends AppCompatActivity {
         }
 
         List<Subedge> subedgeList = new ArrayList<Subedge>();
-    //TODO: Create subedgelist
         for (Edge e : edgeList) {
             for (int s = 0; s < e.getVertexList().size() - 1; s++) {
                 subedgeList.add(new Subedge(e.getId(), e.getVertexList().get(s).getId(), e.getVertexList().get(s+1).getId()));
@@ -160,7 +164,7 @@ public class MainActivity extends AppCompatActivity {
             edgeMap.put(e.getId(), e);
         }
 
-        campus = new Graph(edgeMap, vertexMap, subedgeList);
+        campus = new Graph(edgeMap, vertexMap, subedgeList,-3.5350400 , -3.5295900,50.7360000 ,50.7380400);
        /* TextView mainText = (TextView)  findViewById(R.id.mainText);
         mainText.setText(Html.fromHtml("Vertices per Edge: <br/>"));
         for (int k = 0; k < edgeList.size(); k++) {
@@ -172,7 +176,5 @@ public class MainActivity extends AppCompatActivity {
 
         List<Vertex> path = campus.calculateRoute(source, destination);
 
-        Toast.makeText(this, String.valueOf(path.size()), Toast.LENGTH_LONG).show();
-
-    }
+        Toast.makeText(this, String.valueOf(path.size()), Toast.LENGTH_LONG).show();    }
 }

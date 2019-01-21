@@ -15,12 +15,21 @@ public class Graph {
     private Map<Integer, Edge> edgeMap;
     private Map<Integer, Vertex> vertexMap;
     private List<Subedge> subedgeList;
+    private double minLongitude;
+    private double maxLongitude;
+    private double minLatitude;
+    private double maxLatitude;
 
     public Graph() {}
-    public Graph(Map<Integer, Edge> edgeMap, Map<Integer, Vertex> vertexMap, List<Subedge> subedgeList){
+    public Graph(Map<Integer, Edge> edgeMap, Map<Integer, Vertex> vertexMap, List<Subedge> subedgeList, double minLongitude,
+                 double maxLongitude, double minLatitude, double maxLatitude){
         this.edgeMap = edgeMap;
         this.vertexMap = vertexMap;
         this.subedgeList = subedgeList;
+        this.minLongitude = minLongitude;
+        this.maxLongitude = maxLongitude;
+        this.minLatitude = minLatitude;
+        this.maxLatitude = maxLatitude;
     }
 
     public Map<Integer, Edge> getEdgeMap() {
@@ -35,6 +44,16 @@ public class Graph {
         setEdgeMap(edgeMap);
         return this;
     }
+
+    public double getMinLongitude() {return minLongitude;}
+
+    public double getMaxLongitude() {return maxLongitude;}
+
+    public double getMinLatitude() {return minLatitude;}
+
+    public double getMaxLatitude() {return maxLatitude;}
+
+    public List<Subedge> getSubedgeList() {return subedgeList;}
 
     public Map<Integer, Vertex> getVertexMap() {
         return vertexMap;
