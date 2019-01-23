@@ -67,7 +67,7 @@ public class MainActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.about:
-                Intent intentAbout = new Intent(this, About.class);
+                Intent intentAbout = new Intent(this, SimpleContentActivity.class).putExtra(SimpleContentActivity.EXTRA_FILE, "file:///android_asset/misc/about.html");
                 this.startActivity(intentAbout);
                 return true;
             case R.id.preferences:

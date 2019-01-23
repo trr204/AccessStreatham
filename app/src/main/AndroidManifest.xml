@@ -21,10 +21,6 @@
             android:label="Set your Preferences"
             android:parentActivityName=".MainActivity" />
         <activity
-            android:name=".About"
-            android:label="About AccessStreatham"
-            android:parentActivityName=".MainActivity" />
-        <activity
             android:name=".Buildings"
             android:label="Streatham Campus Buildings"
             android:parentActivityName=".MainActivity" />
@@ -32,6 +28,10 @@
             android:name=".Feature"
             android:label="@string/FeatureActivityBuildingName"
             android:parentActivityName=".Buildings" />
+        <activity
+            android:name=".SimpleContentActivity"
+            android:label="@string/title_activity_simple_content"
+            android:theme="@style/AppTheme.NoActionBar"></activity>
     </application>
 
 </manifest>
