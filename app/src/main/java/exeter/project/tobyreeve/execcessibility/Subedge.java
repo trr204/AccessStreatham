@@ -1,7 +1,6 @@
 package exeter.project.tobyreeve.execcessibility;
 
 public class Subedge {
-
     private int parentEdgeId;
     private int vertex1Id;
     private int vertex2Id;
@@ -36,4 +35,6 @@ public class Subedge {
     public void setVertex2Id(int vertex2Id) {
         this.vertex2Id = vertex2Id;
     }
+
+
 }

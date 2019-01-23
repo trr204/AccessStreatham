@@ -1,27 +1,16 @@
 package exeter.project.tobyreeve.execcessibility;
 
-import android.app.AlertDialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Color;
-import android.location.Location;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.text.Html;
-import android.view.ContextMenu;
+import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Adapter;
-import android.widget.AdapterView;
 import android.widget.HorizontalScrollView;
 import android.widget.ScrollView;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
@@ -40,10 +29,14 @@ public class MainActivity extends AppCompatActivity {
     int canvasHeight;
     Vertex start;
     Vertex end;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        Bitmap tile = BitmapFactory.decodeResource(getResources(), R.drawable.test1);
+        canvasWidth = tile.getWidth();
+        canvasHeight = tile.getHeight();
         setUpGraph();
         scrollView = new ScrollView(this);
         hScrollView = new HorizontalScrollView(this);
@@ -55,18 +48,13 @@ public class MainActivity extends AppCompatActivity {
         canvas.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT));
         scrollView.addView(canvas);
-        Bitmap tile = BitmapFactory.decodeResource(getResources(), R.drawable.test1);
-        canvasWidth = tile.getWidth();
-        canvasHeight = tile.getHeight();
         scrollView.scrollTo(0, tile.getHeight());
         hScrollView.addView(scrollView);
         hScrollView.scrollTo(tile.getWidth(), 0);
 
         setContentView(hScrollView);
 
-
-        Toast.makeText(this, String.valueOf(canvasWidth) + "/" + String.valueOf(canvasHeight), Toast.LENGTH_LONG).show();
-
+        //Toast.makeText(this, String.valueOf(canvasWidth) + "/" + String.valueOf(canvasHeight), Toast.LENGTH_LONG).show();
     }
 
     @Override
@@ -104,6 +92,11 @@ public class MainActivity extends AppCompatActivity {
         List<Edge> edgeList = new ArrayList<Edge>();
         List<EdgeVertexJoin> joinList = new ArrayList<EdgeVertexJoin>();
 
+        double maxLatitude = 50.7380400;
+        double minLatitude = 50.7360000;
+        double maxLongitude = -3.5295900;
+        double minLongitude = -3.5350400;
+
         helper = new DatabaseHelper(this);
         helper.getReadableDatabase();
         Cursor vCursor = helper.getVertexData();
@@ -138,6 +131,8 @@ public class MainActivity extends AppCompatActivity {
         Collections.sort(joinList);
         Map<Integer, Vertex> vertexMap = new HashMap<Integer, Vertex>();
         for (Vertex v : vertexList) {
+            v.setY((1-(v.getLatitude() - minLatitude)/(maxLatitude - minLatitude)) * canvasHeight);
+            v.setX(((v.getLongitude() - minLongitude)/(maxLongitude - minLongitude))*canvasWidth);
             vertexMap.put(v.getId(), v);
         }
 
@@ -164,7 +159,7 @@ public class MainActivity extends AppCompatActivity {
             edgeMap.put(e.getId(), e);
         }
 
-        campus = new Graph(edgeMap, vertexMap, subedgeList,-3.5350400 , -3.5295900,50.7360000 ,50.7380400);
+        campus = new Graph(edgeMap, vertexMap, subedgeList,minLongitude , maxLongitude,minLatitude ,maxLatitude);
        /* TextView mainText = (TextView)  findViewById(R.id.mainText);
         mainText.setText(Html.fromHtml("Vertices per Edge: <br/>"));
         for (int k = 0; k < edgeList.size(); k++) {
@@ -175,6 +170,7 @@ public class MainActivity extends AppCompatActivity {
     public void planRoute(Vertex source, Vertex destination) {
 
         List<Vertex> path = campus.calculateRoute(source, destination);
-
-        Toast.makeText(this, String.valueOf(path.size()), Toast.LENGTH_LONG).show();    }
+        //Toast.makeText(this, String.valueOf(path.size()), Toast.LENGTH_LONG).show();
+        canvas.postInvalidate();
+    }
 }

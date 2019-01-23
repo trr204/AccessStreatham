@@ -15,6 +15,7 @@ public class Graph {
     private Map<Integer, Edge> edgeMap;
     private Map<Integer, Vertex> vertexMap;
     private List<Subedge> subedgeList;
+    private List<Vertex> calculatedPathList;
     private double minLongitude;
     private double maxLongitude;
     private double minLatitude;
@@ -30,6 +31,7 @@ public class Graph {
         this.maxLongitude = maxLongitude;
         this.minLatitude = minLatitude;
         this.maxLatitude = maxLatitude;
+        this.calculatedPathList = new ArrayList<Vertex>();
     }
 
     public Map<Integer, Edge> getEdgeMap() {
@@ -68,6 +70,7 @@ public class Graph {
         return this;
     }
 
+    public List<Vertex> getCalculatedPathList() {return calculatedPathList;}
 
     public class VertexComparator implements Comparator<Vertex> {
         public int compare(Vertex nodeFirst, Vertex nodeSecond) {
@@ -148,6 +151,7 @@ public class Graph {
             v.setG(Float.MAX_VALUE);
         }
         Collections.reverse(pathList);
+        this.calculatedPathList = pathList;
         return pathList;
     }
 }

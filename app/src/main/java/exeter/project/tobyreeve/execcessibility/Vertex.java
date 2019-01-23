@@ -1,15 +1,14 @@
 package exeter.project.tobyreeve.execcessibility;
 
-public class Vertex implements Comparable<Vertex>{
-
+public class Vertex implements Comparable<Vertex> {
     private int id;
     private long osmID;
     private double latitude;
     private double longitude;
     private double heuristicValue;
     private float g;
-    private double widthScale;
-    private double heightScale;
+    private double x;
+    private double y;
 
     public Vertex() {}
 
@@ -104,15 +103,15 @@ public class Vertex implements Comparable<Vertex>{
         return g + heuristicValue;
     }
 
-    public double getWidthScale() {return widthScale;}
+    public double getX() {return x;}
 
-    public void setWidthScale(double widthScale) {
-        this.widthScale = widthScale;
+    public void setX(double x) {
+        this.x = x;
     }
 
-    public double getHeightScale() {return heightScale;}
+    public double getY() {return y;}
 
-    public void setHeightScale(double heightScale) {
-        this.heightScale = heightScale;
+    public void setY(double y) {
+        this.y = y;
     }
 }
