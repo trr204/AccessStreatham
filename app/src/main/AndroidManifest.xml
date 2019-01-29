@@ -21,6 +21,10 @@
             android:label="Set your Preferences"
             android:parentActivityName=".MainActivity" />
         <activity
+            android:name=".RouteSpecification"
+            android:label="Plan your Route"
+            android:parentActivityName=".MainActivity" />
+        <activity
             android:name=".Buildings"
             android:label="Streatham Campus Buildings"
             android:parentActivityName=".MainActivity" />
@@ -31,7 +35,7 @@
         <activity
             android:name=".SimpleContentActivity"
             android:label="@string/title_activity_simple_content"
-            android:theme="@style/AppTheme.NoActionBar"></activity>
+            android:theme="@style/AppTheme.NoActionBar" />
     </application>
 
 </manifest>

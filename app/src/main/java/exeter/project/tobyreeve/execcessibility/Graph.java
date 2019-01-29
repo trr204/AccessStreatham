@@ -72,6 +72,10 @@ public class Graph {
 
     public List<Vertex> getCalculatedPathList() {return calculatedPathList;}
 
+    public void setCalculatedPathList(ArrayList<Vertex> calculatedPathList) {
+        this.calculatedPathList = calculatedPathList;
+    }
+
     public class VertexComparator implements Comparator<Vertex> {
         public int compare(Vertex nodeFirst, Vertex nodeSecond) {
             if (nodeFirst.getF() > nodeSecond.getF()) return 1;

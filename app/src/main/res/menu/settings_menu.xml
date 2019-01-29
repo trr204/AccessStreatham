@@ -17,10 +17,5 @@
         android:title="Buildings"
         app:showAsAction="never"/>
 
-    <item
-        android:id="@+id/temproute"
-        android:title="Calculate Route"
-        app:showAsAction="never"/>
-
 
 </menu>

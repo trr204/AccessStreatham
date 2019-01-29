@@ -5,11 +5,15 @@ import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
+import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.view.ViewGroup;
 import android.widget.HorizontalScrollView;
+import android.widget.RelativeLayout;
 import android.widget.ScrollView;
 import android.widget.Toast;
 
@@ -30,10 +34,14 @@ public class MainActivity extends AppCompatActivity {
     Vertex start;
     Vertex end;
 
+    final double maxLatitude = 50.7380400;
+    final double minLatitude = 50.7360000;
+    final double maxLongitude = -3.5295900;
+    final double minLongitude = -3.5350400;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         Bitmap tile = BitmapFactory.decodeResource(getResources(), R.drawable.test1);
         canvasWidth = tile.getWidth();
         canvasHeight = tile.getHeight();
@@ -52,7 +60,46 @@ public class MainActivity extends AppCompatActivity {
         hScrollView.addView(scrollView);
         hScrollView.scrollTo(tile.getWidth(), 0);
 
-        setContentView(hScrollView);
+        setContentView(R.layout.activity_main);
+        RelativeLayout layout = findViewById(R.id.activity_main);
+        layout.addView(hScrollView);
+
+        FloatingActionButton planRouteFab = findViewById(R.id.plan_route_button);
+        planRouteFab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                //Snackbar.make(view, "Planning a route!", Snackbar.LENGTH_LONG).setAction("Action", null).show();
+                planRoute(start,end);
+                Intent intentPlan = new Intent(MainActivity.this, RouteSpecification.class);
+                startActivityForResult(intentPlan, 1);
+
+
+                //TODO:
+                //click button
+                //new popup?
+                //list of specific sources and destinations (including multiple entrances for some buildings) attributed to specific nodes on the graph (plus current user location if enabled)
+                //choose source - populate spinner from database
+                //choose destination - populate spinner from database
+                //make source and destination interchangeable
+                //click calculate button = planRoute();
+            }
+        });
+
+        /*TODO:
+            Alternative route calculation:
+                User selects a point
+                User then clicks plan route button
+                Selected point is initial starting point (shown as "currently selected location" or something)
+                Proceed as previously
+        */
+        FloatingActionButton clearRouteFab = findViewById(R.id.clear_route_button);
+        clearRouteFab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                //Snackbar.make(view, "Clearing a route!", Snackbar.LENGTH_LONG).setAction("Action", null).show();
+                clearRoute();
+            }
+        });
 
         //Toast.makeText(this, String.valueOf(canvasWidth) + "/" + String.valueOf(canvasHeight), Toast.LENGTH_LONG).show();
     }
@@ -78,9 +125,6 @@ public class MainActivity extends AppCompatActivity {
                 Intent intentBuildings = new Intent(this, Buildings.class);
                 this.startActivity(intentBuildings);
                 return true;
-            case R.id.temproute:
-                planRoute(start,end);
-                return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
@@ -91,11 +135,6 @@ public class MainActivity extends AppCompatActivity {
         List<Vertex> vertexList = new ArrayList<Vertex>();
         List<Edge> edgeList = new ArrayList<Edge>();
         List<EdgeVertexJoin> joinList = new ArrayList<EdgeVertexJoin>();
-
-        double maxLatitude = 50.7380400;
-        double minLatitude = 50.7360000;
-        double maxLongitude = -3.5295900;
-        double minLongitude = -3.5350400;
 
         helper = new DatabaseHelper(this);
         helper.getReadableDatabase();
@@ -165,6 +204,23 @@ public class MainActivity extends AppCompatActivity {
         for (int k = 0; k < edgeList.size(); k++) {
             mainText.append(Html.fromHtml("&#8226; Edge " + edgeList.get(k).getId() + ": " + edgeList.get(k).getVertexList().size() + "<br/>"));
         }*/
+    }
+
+    public void clearRoute() {
+        campus.setCalculatedPathList(new ArrayList<Vertex>());
+        canvas.postInvalidate();
+    }
+
+    public void onActivityResult(int requestCode, int resultCode, Intent intent) {
+        super.onActivityResult(requestCode, resultCode, intent);
+        if (requestCode == 1) {
+            if (resultCode == 1) {
+                Vertex source = campus.getVertexMap().get(intent.getIntExtra("SourceId", 0));
+                Vertex destination = campus.getVertexMap().get(intent.getIntExtra("SourceId", 0));
+
+                planRoute(source, destination);
+            }
+        }
     }
 
     public void planRoute(Vertex source, Vertex destination) {

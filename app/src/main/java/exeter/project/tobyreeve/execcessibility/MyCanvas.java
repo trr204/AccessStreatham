@@ -8,6 +8,8 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.view.View;
 
+import java.util.Map;
+
 public class MyCanvas extends View {
     Paint paint;
     int canvasWidth;
@@ -36,8 +38,26 @@ public class MyCanvas extends View {
         parts[0] = BitmapFactory.decodeResource(getResources(), R.drawable.test1);
         canvas.drawBitmap(parts[0], 0, 0, paint);
 
-        paint.setColor(Color.BLUE);
+        paint.setColor(Color.RED);
         paint.setStyle(Paint.Style.FILL);
+        for (int i = 1; i < campus.getEdgeMap().size(); i++) {
+            Edge e = campus.getEdgeMap().get(i);
+            Vertex v1 = e.getVertexList().get(0);
+            Vertex v2 = e.getVertexList().get(e.getVertexList().size()-1);
+            canvas.drawCircle((float) v1.getX(), (float) v1.getY(), 10, paint);
+            canvas.drawCircle((float) v2.getX(), (float) v2.getY(), 10, paint);
+        }
+        /*paint.setColor(Color.GREEN);
+        paint.setStrokeWidth(10);
+        for (int i = 1; i < campus.getEdgeMap().size(); i++) {
+            Edge e = campus.getEdgeMap().get(i);
+            for (int j = 0; j < e.getVertexList().size()-1; j++) {
+                Vertex v1 = e.getVertexList().get(j);
+                Vertex v2 = e.getVertexList().get(j+1);
+                canvas.drawLine((float) v1.getX(), (float) v1.getY(), (float) v2.getX(), (float) v2.getY(), paint);
+            }
+        }*/
+        paint.setColor(Color.BLUE);
         for (Vertex v : campus.getCalculatedPathList()) {
             canvas.drawCircle((float) v.getX(), (float) v.getY(), 20, paint);
         }
