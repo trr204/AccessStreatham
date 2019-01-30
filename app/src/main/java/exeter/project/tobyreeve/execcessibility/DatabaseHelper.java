@@ -32,9 +32,12 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public static final String EDGE_VERTEX_JOIN_TABLE_COLUMN_TWO = "EdgeId";
     public static final String EDGE_VERTEX_JOIN_TABLE_COLUMN_THREE = "VertexId";
     public static final String EDGE_VERTEX_JOIN_TABLE_COLUMN_FOUR = "VertexPosition";
+    public static final String USER_PREFERENCES_TABLE_NAME = "UserPreferences";
+    public static final String USER_PREFERENCES_TABLE_COLUMN_ONE = "PrefKey";
+    public static final String USER_PREFERENCES_TABLE_COLUMN_TWO = "PrefValue";
 
     public DatabaseHelper(Context context) {
-        super(context, DATABASE_NAME, null, 20);
+        super(context, DATABASE_NAME, null, 22);
     }
 
     @Override
@@ -51,6 +54,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.execSQL("DROP TABLE IF EXISTS " + BUILDING_TABLE_NAME);
         db.execSQL("DROP TABLE IF EXISTS " + FEATURE_TABLE_NAME);
         db.execSQL("DROP TABLE IF EXISTS " + VERTEX_TABLE_NAME);
+        db.execSQL("DROP TABLE IF EXISTS " + USER_PREFERENCES_TABLE_NAME);
         db.execSQL("DROP TABLE IF EXISTS " + EDGE_TABLE_NAME);
         db.execSQL("DROP TABLE IF EXISTS " + EDGE_VERTEX_JOIN_TABLE_NAME);
         String sql = "CREATE TABLE " + BUILDING_TABLE_NAME + " (" +
@@ -58,9 +62,13 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 BUILDING_TABLE_COLUMN_TWO + " TEXT," + //NAME
                 BUILDING_TABLE_COLUMN_THREE + " TEXT)"; //DESCRIPTION
         db.execSQL(sql);
+        sql = "CREATE TABLE " + USER_PREFERENCES_TABLE_NAME + " (" +
+                USER_PREFERENCES_TABLE_COLUMN_ONE + " TEXT PRIMARY KEY," + //PREFKEY
+                USER_PREFERENCES_TABLE_COLUMN_TWO + " INTEGER)"; //PREFVALUE
+        db.execSQL(sql);
         sql = "CREATE TABLE " + FEATURE_TABLE_NAME + " (" +
                 FEATURE_TABLE_COLUMN_ONE + " INTEGER PRIMARY KEY AUTOINCREMENT," + //ID
-                FEATURE_TABLE_COLUMN_TWO + " INTEGER," + //BUILDINGIS
+                FEATURE_TABLE_COLUMN_TWO + " INTEGER," + //BUILDINGID
                 FEATURE_TABLE_COLUMN_THREE + " TEXT," + //NAME
                 FEATURE_TABLE_COLUMN_FOUR + " TEXT," + //DESCRIPTION
                 "FOREIGN KEY("+FEATURE_TABLE_COLUMN_TWO+") REFERENCES "+BUILDING_TABLE_NAME+"("+BUILDING_TABLE_COLUMN_ONE+"))";
@@ -87,6 +95,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 "FOREIGN KEY("+EDGE_VERTEX_JOIN_TABLE_COLUMN_TWO+") REFERENCES "+EDGE_TABLE_NAME+"("+EDGE_TABLE_COLUMN_ONE+")," +
                 "FOREIGN KEY("+EDGE_VERTEX_JOIN_TABLE_COLUMN_THREE+") REFERENCES "+VERTEX_TABLE_NAME+"("+VERTEX_TABLE_COLUMN_ONE+"))";
         db.execSQL(sql);
+
+        populateUserPreferencesData(db, "AvoidStaircases", 0);
+        populateUserPreferencesData(db, "DistanceOverAltitude", 0);
 
         populateBuildingData(db, "Amory","");
         populateBuildingData(db, "Bill Douglas Cinema Museum","");
@@ -986,6 +997,14 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return (result != -1);
     }
 
+    public boolean populateUserPreferencesData(SQLiteDatabase db, String prefKey, int prefValue) {
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(USER_PREFERENCES_TABLE_COLUMN_ONE, prefKey);
+        contentValues.put(USER_PREFERENCES_TABLE_COLUMN_TWO, prefValue);
+        long result = db.insert(USER_PREFERENCES_TABLE_NAME, null, contentValues);
+        return (result != -1);
+    }
+
     public boolean populateFeatureData(SQLiteDatabase db, String name, String description, int buildingId) {
         ContentValues contentValues = new ContentValues();
         contentValues.put(FEATURE_TABLE_COLUMN_TWO, buildingId);
@@ -1061,6 +1080,12 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return res;
     }
 
+    public Cursor getUserPreferenceData() {
+        SQLiteDatabase db = this.getWritableDatabase();
+        Cursor res = db.rawQuery("SELECT " + USER_PREFERENCES_TABLE_COLUMN_ONE + "," + USER_PREFERENCES_TABLE_COLUMN_TWO + " FROM " + USER_PREFERENCES_TABLE_NAME, null);
+        return res;
+    }
+
     public Cursor getEdgeVertexJoinCount() {
         SQLiteDatabase db = this.getWritableDatabase();
         Cursor res = db.rawQuery("SELECT COUNT(*) FROM " + EDGE_VERTEX_JOIN_TABLE_NAME , null);
@@ -1072,4 +1097,11 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         Cursor res = db.rawQuery("SELECT * FROM " + EDGE_VERTEX_JOIN_TABLE_NAME , null);
         return res;
     }
+
+    public void updateUserPreference(SQLiteDatabase db, String prefKey, int prefValue) {
+        String sql = "UPDATE "+USER_PREFERENCES_TABLE_NAME+" SET "+USER_PREFERENCES_TABLE_COLUMN_TWO+"="+prefValue+" WHERE "+USER_PREFERENCES_TABLE_COLUMN_ONE+"='"+prefKey+"'";
+        db.execSQL(sql);
+    }
+
+
 }
