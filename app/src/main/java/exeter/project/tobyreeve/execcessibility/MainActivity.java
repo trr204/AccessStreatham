@@ -69,7 +69,6 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 //Snackbar.make(view, "Planning a route!", Snackbar.LENGTH_LONG).setAction("Action", null).show();
-                planRoute(start,end);
                 Intent intentPlan = new Intent(MainActivity.this, RouteSpecification.class);
                 startActivityForResult(intentPlan, 1);
 
@@ -145,12 +144,6 @@ public class MainActivity extends AppCompatActivity {
         for (int i = 0; i < vCursor.getCount(); i++) {
             while(vCursor.moveToNext()) {
                 vertexList.add(new Vertex(vCursor.getInt(0), vCursor.getLong(1), vCursor.getFloat(2), vCursor.getFloat(3)));
-                if (vCursor.getLong(1) == 299835590) {
-                    start = vertexList.get(vertexList.size()-1);
-                }
-                if (vCursor.getLong(1) == 2179870824L) {
-                    end = vertexList.get(vertexList.size()-1);
-                }
 
             }
         }
@@ -214,10 +207,10 @@ public class MainActivity extends AppCompatActivity {
     public void onActivityResult(int requestCode, int resultCode, Intent intent) {
         super.onActivityResult(requestCode, resultCode, intent);
         if (requestCode == 1) {
-            if (resultCode == 1) {
-                Vertex source = campus.getVertexMap().get(intent.getIntExtra("SourceId", 0));
-                Vertex destination = campus.getVertexMap().get(intent.getIntExtra("SourceId", 0));
-
+            if (resultCode == RESULT_OK) {
+                Vertex source = campus.getVertexMap().get(Integer.valueOf(intent.getStringExtra("SOURCE")));
+                Vertex destination = campus.getVertexMap().get(Integer.valueOf(intent.getStringExtra("DESTINATION")));
+                clearRoute();
                 planRoute(source, destination);
             }
         }
