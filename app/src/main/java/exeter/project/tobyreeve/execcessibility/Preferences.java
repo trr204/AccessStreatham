@@ -16,7 +16,8 @@ import java.util.List;
 import java.util.Map;
 
 public class Preferences extends AppCompatActivity {
-    //TODO: Preferences
+    //TODO: Add more Preferences
+    //TODO: Typefacespan?
 
     DatabaseHelper helper;
     Map<String, SeekBar> seekBarMap;
