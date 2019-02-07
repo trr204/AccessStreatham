@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -16,6 +17,16 @@ import android.widget.HorizontalScrollView;
 import android.widget.RelativeLayout;
 import android.widget.ScrollView;
 import android.widget.Toast;
+
+import com.android.volley.AuthFailureError;
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -43,16 +54,17 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Bitmap tile = BitmapFactory.decodeResource(getResources(), R.drawable.test1);
+        RequestQueue queue = RequestQueueHandler.getInstance().getRequestQueue();
         canvasWidth = tile.getWidth();
         canvasHeight = tile.getHeight();
-        setUpGraph();
+        checkForGraphUpdate();
         scrollView = new ScrollView(this);
         hScrollView = new HorizontalScrollView(this);
         scrollView.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT));
         hScrollView.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT));
-        canvas = new MyCanvas(this, campus);
+        canvas = new MyCanvas(this);
         canvas.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT));
         scrollView.addView(canvas);
@@ -192,6 +204,8 @@ public class MainActivity extends AppCompatActivity {
         }
 
         campus = new Graph(edgeMap, vertexMap, subedgeList,minLongitude , maxLongitude,minLatitude ,maxLatitude);
+        canvas.setGraph(campus);
+        canvas.postInvalidate();
        /* TextView mainText = (TextView)  findViewById(R.id.mainText);
         mainText.setText(Html.fromHtml("Vertices per Edge: <br/>"));
         for (int k = 0; k < edgeList.size(); k++) {
@@ -221,5 +235,73 @@ public class MainActivity extends AppCompatActivity {
         List<Vertex> path = campus.calculateRoute(source, destination);
         //Toast.makeText(this, String.valueOf(path.size()), Toast.LENGTH_LONG).show();
         canvas.postInvalidate();
+    }
+
+
+
+
+    public void checkForGraphUpdate() {
+        final DatabaseHelper helper = new DatabaseHelper(this);
+        helper.getReadableDatabase();
+        Cursor versionCursor = helper.getVersionNum();
+        versionCursor.moveToNext();
+        final int currentClientVersion = versionCursor.getInt(0);
+        JsonObjectRequest jor = new JsonObjectRequest(Request.Method.GET, "http://10.0.2.2:3000/version", null, new Response.Listener<JSONObject>() {
+            @Override
+            public void onResponse(JSONObject response) {
+                Log.d("Version HTTP RESP", response.toString());
+                try {
+                    if (currentClientVersion < response.getInt("VersionNum")) {
+                        getUpdatedGraphData(response.getInt("VersionNum"), helper);
+                    } else {
+                        setUpGraph();
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Log.e("Version HTTP ERR", error.getMessage());
+            }
+        }){
+            @Override
+            public Map getHeaders() throws AuthFailureError {
+                HashMap headers = new HashMap();
+                headers.put("Content-Type", "application/json");
+                headers.put("x-auth", "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VybmFtZSI6InRlc3QifQ.eIRXuuKEmcqrZ2GHGcu0fGp5ypHcNy1gxTJBZ11Dz-I");
+                return headers;
+            }
+        };
+        RequestQueueHandler.getInstance().addToRequestQueue(jor);
+        Log.d("HTTP REQUEST", "SENT");
+    }
+
+    public void getUpdatedGraphData(final int newVersionNum, final DatabaseHelper helper) {
+        JsonObjectRequest jor = new JsonObjectRequest(Request.Method.GET, "http://10.0.2.2:3000/graphdata", null, new Response.Listener<JSONObject>() {
+            @Override
+            public void onResponse(JSONObject response) {
+                Log.d("GraphUpdate HTTP RESP", response.toString());
+                helper.updateGraphData(helper.getWritableDatabase(), newVersionNum, response);
+                setUpGraph();
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Log.e("GraphUpdate HTTP ERR", error.getMessage());
+            }
+        }){
+            @Override
+            public Map getHeaders() throws AuthFailureError {
+                HashMap headers = new HashMap();
+                headers.put("Content-Type", "application/json");
+                headers.put("x-auth", "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VybmFtZSI6InRlc3QifQ.eIRXuuKEmcqrZ2GHGcu0fGp5ypHcNy1gxTJBZ11Dz-I");
+                return headers;
+            }
+        };
+        RequestQueueHandler.getInstance().addToRequestQueue(jor);
+        Log.d("HTTP REQUEST", "SENT");
+
     }
 }
