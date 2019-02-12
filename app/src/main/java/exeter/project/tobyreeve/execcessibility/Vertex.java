@@ -6,7 +6,7 @@ public class Vertex implements Comparable<Vertex> {
     private double latitude;
     private double longitude;
     private double heuristicValue;
-    private float g;
+    private float g; //Distance from source to this vertex
     private double x;
     private double y;
 

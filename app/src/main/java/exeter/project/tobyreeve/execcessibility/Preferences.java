@@ -1,18 +1,14 @@
 package exeter.project.tobyreeve.execcessibility;
 
-import android.content.SharedPreferences;
 import android.database.Cursor;
-import android.support.design.widget.Snackbar;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.design.widget.FloatingActionButton;
+import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
-import android.widget.ImageButton;
 import android.widget.SeekBar;
-import android.widget.Toast;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 public class Preferences extends AppCompatActivity {
@@ -31,8 +27,8 @@ public class Preferences extends AppCompatActivity {
         helper = new DatabaseHelper(this);
         SeekBar stairsSeekbar = (SeekBar) findViewById(R.id.avoid_staircases_seeker);
         SeekBar distanceOverAltitudeSeekbar = (SeekBar) findViewById(R.id.distance_over_steep_seekbar);
-        ImageButton cancelPreferencesButton = (ImageButton) findViewById(R.id.cancel_preferences_button);
-        ImageButton savePreferencesButton = (ImageButton) findViewById(R.id.save_preferences_button);
+        FloatingActionButton cancelPreferencesButton = (FloatingActionButton) findViewById(R.id.cancel_preferences_button);
+        FloatingActionButton savePreferencesButton = (FloatingActionButton) findViewById(R.id.save_preferences_button);
 
         seekBarMap = new HashMap<String, SeekBar>();
         seekBarMap.put(AVOID_STAIRCASES, stairsSeekbar);
@@ -57,6 +53,7 @@ public class Preferences extends AppCompatActivity {
     }
 
     public void loadPreferences() {
+        Log.d("LOAD PREFS", "Start loading preferences");
         helper.getReadableDatabase();
         Cursor prefCursor = helper.getUserPreferenceData();
         for (int i = 0; i < prefCursor.getCount(); i++) {
@@ -76,10 +73,10 @@ public class Preferences extends AppCompatActivity {
     }
 
     public void savePreferences() {
-        //Snackbar.make(view, "Saving Preferences!!", Snackbar.LENGTH_LONG).setAction("Action", null).show();
+        Log.d("SAVE PREFS", "Start saving preference values");
         for (Map.Entry<String, SeekBar> e : seekBarMap.entrySet()) {
             helper.updateUserPreference(helper.getWritableDatabase(), e.getKey(), e.getValue().getProgress());
         }
-        Toast.makeText(this, "Save successful!", Toast.LENGTH_LONG).show();
+        Log.d("SAVE PREFS", "Save successful!");
     }
 }

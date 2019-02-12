@@ -11,7 +11,8 @@
         android:usesCleartextTraffic="true"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".MainActivity">
+        <activity android:name=".MainActivity"
+            android:screenOrientation="landscape">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -21,21 +22,26 @@
         <activity
             android:name=".Preferences"
             android:label="Set your Preferences"
+            android:screenOrientation="landscape"
             android:parentActivityName=".MainActivity" />
         <activity
             android:name=".RouteSpecification"
             android:label="Plan your Route"
+            android:screenOrientation="landscape"
             android:parentActivityName=".MainActivity" />
         <activity
             android:name=".Buildings"
+            android:screenOrientation="landscape"
             android:label="Streatham Campus Buildings"
             android:parentActivityName=".MainActivity" />
         <activity
             android:name=".Feature"
+            android:screenOrientation="landscape"
             android:label="@string/FeatureActivityBuildingName"
             android:parentActivityName=".Buildings" />
         <activity
             android:name=".SimpleContentActivity"
+            android:screenOrientation="landscape"
             android:label="@string/title_activity_simple_content"
             android:theme="@style/AppTheme.NoActionBar" />
     </application>

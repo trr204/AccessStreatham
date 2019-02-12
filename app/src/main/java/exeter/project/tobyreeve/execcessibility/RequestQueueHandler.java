@@ -9,7 +9,6 @@ import com.android.volley.toolbox.Volley;
 public class RequestQueueHandler {
     private static RequestQueueHandler instance;
     private RequestQueue requestQueue;
-    private static Context mCtx;
 
     private RequestQueueHandler() {
         requestQueue = getRequestQueue();

@@ -4,20 +4,14 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Color;
 import android.os.Bundle;
-import android.support.constraint.ConstraintLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.webkit.WebSettings;
-import android.widget.HorizontalScrollView;
 import android.widget.RelativeLayout;
-import android.widget.ScrollView;
-import android.widget.TextView;
 
 import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
@@ -40,8 +34,6 @@ public class MainActivity extends AppCompatActivity {
     DatabaseHelper helper;
     Graph campus;
     MyCanvas canvas;
-    ScrollView scrollView;
-    HorizontalScrollView hScrollView;
     int canvasWidth;
     int canvasHeight;
     Vertex start;
@@ -66,9 +58,9 @@ public class MainActivity extends AppCompatActivity {
         canvas.getSettings().setDisplayZoomControls(true);
         canvas.loadUrl("file:///android_res/drawable/test1.png");
         setContentView(R.layout.activity_main);
-        RelativeLayout layout = (RelativeLayout) findViewById(R.id.activity_main);
+        RelativeLayout layout = findViewById(R.id.activity_main);
         layout.addView(canvas);
-
+        //getSupportActionBar().hide();
         FloatingActionButton planRouteFab = findViewById(R.id.plan_route_button);
         planRouteFab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -228,11 +220,9 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void planRoute(Vertex source, Vertex destination) {
-
-        List<Vertex> path = campus.calculateRoute(source, destination);
-        //Toast.makeText(this, String.valueOf(path.size()), Toast.LENGTH_LONG).show();
+        campus.calculateRoute(source, destination);
         canvas.postInvalidate();
-        Log.d("PLANROUTE", "Route calculation finished");
+        Log.d("PLANROUTE", "Route calculation finished, path size: " + String.valueOf(campus.getCalculatedPathList().size()));
     }
 
 

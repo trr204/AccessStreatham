@@ -1,12 +1,10 @@
 package exeter.project.tobyreeve.execcessibility;
 
 import android.database.Cursor;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.text.Html;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 public class Feature extends AppCompatActivity {
     DatabaseHelper helper;
@@ -25,7 +23,7 @@ public class Feature extends AppCompatActivity {
         nameCursor.moveToFirst();
         Cursor featureCursor = helper.getBuildingFeatureData(nameCursor.getInt(0));
 
-        TextView featureList = (TextView)  findViewById(R.id.textView);
+        TextView featureList = findViewById(R.id.textView);
         featureList.setText(Html.fromHtml("Features: <br/>"));
         for (int i = 0; i < featureCursor.getCount(); i++) {
             while(featureCursor.moveToNext()) {

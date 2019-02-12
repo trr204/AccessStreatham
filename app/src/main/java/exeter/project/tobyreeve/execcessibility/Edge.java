@@ -1,7 +1,5 @@
 package exeter.project.tobyreeve.execcessibility;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 
 public class Edge implements Comparable<Edge>{
@@ -11,8 +9,7 @@ public class Edge implements Comparable<Edge>{
     private float weight;
     private Map<Integer, Vertex> vertexList;
 
-    public Edge() {
-    }
+    public Edge() {}
 
     public Edge(int id, long osmId, Map<Integer, Vertex> vertexList) {
         this.id = id;
