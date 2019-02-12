@@ -4,24 +4,26 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.os.Bundle;
+import android.support.constraint.ConstraintLayout;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
+import android.webkit.WebSettings;
 import android.widget.HorizontalScrollView;
 import android.widget.RelativeLayout;
 import android.widget.ScrollView;
-import android.widget.Toast;
+import android.widget.TextView;
 
 import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
+import com.android.volley.TimeoutError;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 
@@ -58,29 +60,20 @@ public class MainActivity extends AppCompatActivity {
         canvasWidth = tile.getWidth();
         canvasHeight = tile.getHeight();
         checkForGraphUpdate();
-        scrollView = new ScrollView(this);
-        hScrollView = new HorizontalScrollView(this);
-        scrollView.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT));
-        hScrollView.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT));
-        canvas = new MyCanvas(this);
-        canvas.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT));
-        scrollView.addView(canvas);
-        scrollView.scrollTo(0, tile.getHeight());
-        hScrollView.addView(scrollView);
-        hScrollView.scrollTo(tile.getWidth(), 0);
 
+        canvas = new MyCanvas(this);
+        canvas.getSettings().setBuiltInZoomControls(true);
+        canvas.getSettings().setDisplayZoomControls(true);
+        canvas.loadUrl("file:///android_res/drawable/test1.png");
         setContentView(R.layout.activity_main);
-        RelativeLayout layout = findViewById(R.id.activity_main);
-        layout.addView(hScrollView);
+        RelativeLayout layout = (RelativeLayout) findViewById(R.id.activity_main);
+        layout.addView(canvas);
 
         FloatingActionButton planRouteFab = findViewById(R.id.plan_route_button);
         planRouteFab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                //Snackbar.make(view, "Planning a route!", Snackbar.LENGTH_LONG).setAction("Action", null).show();
+                Log.d("PLANROUTE", "Planning a route fab clicked!");
                 Intent intentPlan = new Intent(MainActivity.this, RouteSpecification.class);
                 startActivityForResult(intentPlan, 1);
 
@@ -107,12 +100,11 @@ public class MainActivity extends AppCompatActivity {
         clearRouteFab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                //Snackbar.make(view, "Clearing a route!", Snackbar.LENGTH_LONG).setAction("Action", null).show();
+                Log.d("CLEARROUTE", "Clearing route fab clicked!");
                 clearRoute();
             }
         });
-
-        //Toast.makeText(this, String.valueOf(canvasWidth) + "/" + String.valueOf(canvasHeight), Toast.LENGTH_LONG).show();
+        Log.d("CANVAS DIMENS", "Canvas height: " + String.valueOf(canvasHeight) + ", Canvas width: " + String.valueOf(canvasWidth));
     }
 
     @Override
@@ -142,7 +134,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void setUpGraph() {
-
+        Log.d("SETUP", "Set up start");
         List<Vertex> vertexList = new ArrayList<Vertex>();
         List<Edge> edgeList = new ArrayList<Edge>();
         List<EdgeVertexJoin> joinList = new ArrayList<EdgeVertexJoin>();
@@ -159,16 +151,19 @@ public class MainActivity extends AppCompatActivity {
 
             }
         }
+        Log.d("SETUPGRAPH", "vertexList populated");
         for (int j = 0; j < jCursor.getCount(); j++) {
             while (jCursor.moveToNext()) {
                 joinList.add(new EdgeVertexJoin(jCursor.getInt(0), jCursor.getInt(1), jCursor.getInt(2), jCursor.getInt(3)));
             }
         }
+        Log.d("SETUPGRAPH", "joinList populated");
         for (int i = 0; i < eCursor.getCount(); i++) {
             while(eCursor.moveToNext()) {
                 edgeList.add(new Edge(eCursor.getInt(0), eCursor.getLong(1), new HashMap<Integer, Vertex>()));
             }
         }
+        Log.d("SETUPGRAPH", "edgeList populated");
 
         Collections.sort(edgeList);
         Collections.sort(vertexList);
@@ -179,7 +174,7 @@ public class MainActivity extends AppCompatActivity {
             v.setX(((v.getLongitude() - minLongitude)/(maxLongitude - minLongitude))*canvasWidth);
             vertexMap.put(v.getId(), v);
         }
-
+        Log.d("SETUPGRAPH", "vertexMap populated");
 
         int i = 0;
         for (int j = 0; j < joinList.size(); j++) {
@@ -190,6 +185,7 @@ public class MainActivity extends AppCompatActivity {
                 i++;
             }
         }
+        Log.d("SETUPGRAPH", "edgeList vertexLists populated");
 
         List<Subedge> subedgeList = new ArrayList<Subedge>();
         for (Edge e : edgeList) {
@@ -197,25 +193,25 @@ public class MainActivity extends AppCompatActivity {
                 subedgeList.add(new Subedge(e.getId(), e.getVertexList().get(s).getId(), e.getVertexList().get(s+1).getId()));
             }
         }
+        Log.d("SETUPGRAPH", "subedgeList populated");
 
         Map<Integer, Edge> edgeMap = new HashMap<Integer, Edge>();
         for (Edge e : edgeList) {
             edgeMap.put(e.getId(), e);
         }
+        Log.d("SETUPGRAPH", "edgeMap populated");
 
         campus = new Graph(edgeMap, vertexMap, subedgeList,minLongitude , maxLongitude,minLatitude ,maxLatitude);
+        //TODO
         canvas.setGraph(campus);
         canvas.postInvalidate();
-       /* TextView mainText = (TextView)  findViewById(R.id.mainText);
-        mainText.setText(Html.fromHtml("Vertices per Edge: <br/>"));
-        for (int k = 0; k < edgeList.size(); k++) {
-            mainText.append(Html.fromHtml("&#8226; Edge " + edgeList.get(k).getId() + ": " + edgeList.get(k).getVertexList().size() + "<br/>"));
-        }*/
+        Log.d("SETUPGRAPH", "Finished. Vertex total: " + String.valueOf(campus.getVertexMap().size()) + ", Edge total: " + String.valueOf(campus.getEdgeMap().size()));
     }
 
     public void clearRoute() {
         campus.setCalculatedPathList(new ArrayList<Vertex>());
         canvas.postInvalidate();
+        Log.d("CLEARROUTE", "Route cleared");
     }
 
     public void onActivityResult(int requestCode, int resultCode, Intent intent) {
@@ -225,6 +221,7 @@ public class MainActivity extends AppCompatActivity {
                 Vertex source = campus.getVertexMap().get(Integer.valueOf(intent.getStringExtra("SOURCE")));
                 Vertex destination = campus.getVertexMap().get(Integer.valueOf(intent.getStringExtra("DESTINATION")));
                 clearRoute();
+                Log.d("PLANROUTE", "Source and destination acquired on MainActivity from RouteSpecification");
                 planRoute(source, destination);
             }
         }
@@ -235,6 +232,7 @@ public class MainActivity extends AppCompatActivity {
         List<Vertex> path = campus.calculateRoute(source, destination);
         //Toast.makeText(this, String.valueOf(path.size()), Toast.LENGTH_LONG).show();
         canvas.postInvalidate();
+        Log.d("PLANROUTE", "Route calculation finished");
     }
 
 
@@ -263,7 +261,12 @@ public class MainActivity extends AppCompatActivity {
         }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                Log.e("Version HTTP ERR", error.getMessage());
+                if (error instanceof TimeoutError) {
+                    Log.e("Version HTTP ERR", "No connection could be made");
+                } else {
+                    Log.e("Version HTTP ERR", error.getMessage());
+                }
+                setUpGraph();
             }
         }){
             @Override
@@ -289,7 +292,12 @@ public class MainActivity extends AppCompatActivity {
         }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                Log.e("GraphUpdate HTTP ERR", error.getMessage());
+                if (error instanceof TimeoutError) {
+                    Log.e("GraphUpdate HTTP ERR", "No connection could be made");
+                } else {
+                    Log.e("GraphUpdate HTTP ERR", error.getMessage());
+                }
+                setUpGraph();
             }
         }){
             @Override

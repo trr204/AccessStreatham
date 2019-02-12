@@ -44,20 +44,24 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public static final String DATABASE_VERSION_TABLE_COLUMN_ONE = "VersionNum";
 
     public DatabaseHelper(Context context) {
-        super(context, DATABASE_NAME, null, 31);
+        super(context, DATABASE_NAME, null, 32);
     }
 
     @Override
     public void onCreate(SQLiteDatabase db) {
+        Log.d("DATABASE CREATE", "Start creating database tables");
+        Log.d("DATABASE CREATE", "Create Building table");
         String sql = "CREATE TABLE " + BUILDING_TABLE_NAME + " (" +
                 BUILDING_TABLE_COLUMN_ONE + " INTEGER PRIMARY KEY AUTOINCREMENT," + //ID
                 BUILDING_TABLE_COLUMN_TWO + " TEXT," + //NAME
                 BUILDING_TABLE_COLUMN_THREE + " TEXT)"; //DESCRIPTION
         db.execSQL(sql);
+        Log.d("DATABASE CREATE", "Create UserPreferences table");
         sql = "CREATE TABLE " + USER_PREFERENCES_TABLE_NAME + " (" +
                 USER_PREFERENCES_TABLE_COLUMN_ONE + " TEXT PRIMARY KEY," + //PREFKEY
                 USER_PREFERENCES_TABLE_COLUMN_TWO + " INTEGER)"; //PREFVALUE
         db.execSQL(sql);
+        Log.d("DATABASE CREATE", "Create Feature table");
         sql = "CREATE TABLE " + FEATURE_TABLE_NAME + " (" +
                 FEATURE_TABLE_COLUMN_ONE + " INTEGER PRIMARY KEY AUTOINCREMENT," + //ID
                 FEATURE_TABLE_COLUMN_TWO + " INTEGER," + //BUILDINGID
@@ -65,12 +69,14 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 FEATURE_TABLE_COLUMN_FOUR + " TEXT," + //DESCRIPTION
                 "FOREIGN KEY("+FEATURE_TABLE_COLUMN_TWO+") REFERENCES "+BUILDING_TABLE_NAME+"("+BUILDING_TABLE_COLUMN_ONE+"))";
         db.execSQL(sql);
+        Log.d("DATABASE CREATE", "Create Vertex table");
         sql = "CREATE TABLE " + VERTEX_TABLE_NAME + " (" +
                 VERTEX_TABLE_COLUMN_ONE + " INTEGER PRIMARY KEY AUTOINCREMENT," + //ID
                 VERTEX_TABLE_COLUMN_TWO + " TEXT," + //VERTEX'S OSM ID
                 VERTEX_TABLE_COLUMN_THREE + " REAL," + //LATITUDE
                 VERTEX_TABLE_COLUMN_FOUR + " REAL)"; //LONGITUDE
         db.execSQL(sql);
+        Log.d("DATABASE CREATE", "Create Edge table");
         sql = "CREATE TABLE " + EDGE_TABLE_NAME + " (" +
                 EDGE_TABLE_COLUMN_ONE + " INTEGER PRIMARY KEY AUTOINCREMENT," + //ID
                 EDGE_TABLE_COLUMN_TWO + " TEXT," + //EDGE'S OSM ID
@@ -79,6 +85,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 "FOREIGN KEY("+EDGE_TABLE_COLUMN_THREE+") REFERENCES "+VERTEX_TABLE_NAME+"("+VERTEX_TABLE_COLUMN_ONE+")," +
                 "FOREIGN KEY("+EDGE_TABLE_COLUMN_FOUR+") REFERENCES "+VERTEX_TABLE_NAME+"("+VERTEX_TABLE_COLUMN_ONE+"))";
         db.execSQL(sql);
+        Log.d("DATABASE CREATE", "Create Edge_Vertex_Association table");
         sql = "CREATE TABLE " + EDGE_VERTEX_JOIN_TABLE_NAME + " (" +
                 EDGE_VERTEX_JOIN_TABLE_COLUMN_ONE + " INTEGER PRIMARY KEY AUTOINCREMENT," + //ID
                 EDGE_VERTEX_JOIN_TABLE_COLUMN_TWO + " INTEGER," + //EDGE'S ID
@@ -87,13 +94,20 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 "FOREIGN KEY("+EDGE_VERTEX_JOIN_TABLE_COLUMN_TWO+") REFERENCES "+EDGE_TABLE_NAME+"("+EDGE_TABLE_COLUMN_ONE+")," +
                 "FOREIGN KEY("+EDGE_VERTEX_JOIN_TABLE_COLUMN_THREE+") REFERENCES "+VERTEX_TABLE_NAME+"("+VERTEX_TABLE_COLUMN_ONE+"))";
         db.execSQL(sql);
+        Log.d("DATABASE CREATE", "Create DatabaseVersion table");
         sql = "CREATE TABLE " + DATABASE_VERSION_TABLE_NAME + " (" +
                 DATABASE_VERSION_TABLE_COLUMN_ONE + " INTEGER)"; //ID
         db.execSQL(sql);
+        Log.d("DATABASE CREATE", "Start inserting static data");
 
-        populateVersionNum(db, 1);populateUserPreferencesData(db, "AvoidStaircases", 0);
+        Log.d("DATABASE CREATE", "Insert initial DatabaseVersion data");
+        populateVersionNum(db, 1);
+
+        Log.d("DATABASE CREATE", "Insert initial USerPreference data");
+        populateUserPreferencesData(db, "AvoidStaircases", 0);
         populateUserPreferencesData(db, "DistanceOverAltitude", 0);
 
+        Log.d("DATABASE CREATE", "Insert Building data");
         populateBuildingData(db, "Amory","");
         populateBuildingData(db, "Bill Douglas Cinema Museum","");
         populateBuildingData(db, "Building: One","");
@@ -160,6 +174,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         populateBuildingData(db, "Duryard","");
         populateBuildingData(db, "Newman Lecture Theatres","Same as Peter Chalk");
 
+
+        Log.d("DATABASE CREATE", "Insert Feature data");
         populateFeatureData(db, "Computer Science","", 1);
         populateFeatureData(db, "Engineering","", 1);
         populateFeatureData(db, "Mathematical Science","", 1);
@@ -199,16 +215,20 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
     public void updateGraphData(SQLiteDatabase db, int versionNum, JSONObject newData) {
+        Log.d("DB VERSION UPDATE", "Begin database data update, new version number: " + String.valueOf(versionNum));
+        Log.d("DB VERSION UPDATE", "Drop current data from Vertex, Edge, Edge_Vertex_Association and DatabaseVersion tables");
         db.execSQL("DELETE FROM " + VERTEX_TABLE_NAME);
         db.execSQL("DELETE FROM " + EDGE_TABLE_NAME);
         db.execSQL("DELETE FROM " + EDGE_VERTEX_JOIN_TABLE_NAME);
         db.execSQL("DELETE FROM " + DATABASE_VERSION_TABLE_NAME);
 
+        Log.d("DB VERSION UPDATE", "Start extracting data from JSON object: " + newData.toString());
         try {
             JSONArray vertexArray = newData.getJSONArray("vertices");
             JSONArray edgeArray = newData.getJSONArray("edges");
             JSONArray joinsArray = newData.getJSONArray("joins");
             boolean successful = true;
+            Log.d("DB VERSION UPDATE", "Start inserting new Vertex data");
             for (int i = 0; i < vertexArray.length(); i++) {
                 JSONObject v = vertexArray.getJSONObject(i);
                 boolean temp = populateVertexData(db, v.getInt("VertexId"), v.getString("OsmId"), v.getString("Latitude"), v.getString("Longitude"));
@@ -216,6 +236,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                     successful = false;
                 }
             }
+            Log.d("DB VERSION UPDATE", "Vertex data insert fully successful? " + String.valueOf(successful));
+            Log.d("DB VERSION UPDATE", "Start inserting new Edge data");
             for (int i = 0; i < edgeArray.length(); i++) {
                 JSONObject e = edgeArray.getJSONObject(i);
                 boolean temp = populateEdgeData(db, e.getInt("EdgeId"), e.getString("OsmId"), e.getInt("StartVertexId"), e.getInt("EndVertexId"));
@@ -223,6 +245,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                     successful = false;
                 }
             }
+            Log.d("DB VERSION UPDATE", "Edge data insert fully successful? " + String.valueOf(successful));
+            Log.d("DB VERSION UPDATE", "Start inserting new Edge_Vertex_Association data");
             for (int i = 0; i < joinsArray.length(); i++) {
                 JSONObject j = joinsArray.getJSONObject(i);
                 boolean temp = populateEdgeVertexJoinData(db, j.getInt("AssociationId"), j.getInt("EdgeId"), j.getInt("VertexId"), j.getInt("VertexPos"));
@@ -230,8 +254,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                     successful = false;
                 }
             }
+            Log.d("DB VERSION UPDATE", "Edge_Vertex_Association data insert fully successful? " + String.valueOf(successful));
 
             if (successful) {
+                Log.d("DB VERSION UPDATE", "Insert new version number");
                 populateVersionNum(db, versionNum);
             }
         } catch (JSONException e) {
