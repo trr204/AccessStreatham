@@ -44,7 +44,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public static final String DATABASE_VERSION_TABLE_COLUMN_ONE = "VersionNum";
 
     public DatabaseHelper(Context context) {
-        super(context, DATABASE_NAME, null, 32);
+        super(context, DATABASE_NAME, null, 34);
     }
 
     @Override
@@ -186,32 +186,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        db.execSQL("DROP TABLE IF EXISTS " + EDGE_VERTEX_JOIN_TABLE_NAME);
-        db.execSQL("DROP TABLE IF EXISTS " + EDGE_TABLE_NAME);
-        db.execSQL("DROP TABLE IF EXISTS " + VERTEX_TABLE_NAME);
-        String sql = "CREATE TABLE " + VERTEX_TABLE_NAME + " (" +
-                VERTEX_TABLE_COLUMN_ONE + " INTEGER PRIMARY KEY," + //ID
-                VERTEX_TABLE_COLUMN_TWO + " TEXT," + //VERTEX'S OSM ID
-                VERTEX_TABLE_COLUMN_THREE + " REAL," + //LATITUDE
-                VERTEX_TABLE_COLUMN_FOUR + " REAL)"; //LONGITUDE
-        db.execSQL(sql);
-        sql = "CREATE TABLE " + EDGE_TABLE_NAME + " (" +
-                EDGE_TABLE_COLUMN_ONE + " INTEGER PRIMARY KEY," + //ID
-                EDGE_TABLE_COLUMN_TWO + " TEXT," + //EDGE'S OSM ID
-                EDGE_TABLE_COLUMN_THREE + " INTEGER," + //START VERTEX'S ID
-                EDGE_TABLE_COLUMN_FOUR + " INTEGER," + //END VERTEX'S ID
-                "FOREIGN KEY("+EDGE_TABLE_COLUMN_THREE+") REFERENCES "+VERTEX_TABLE_NAME+"("+VERTEX_TABLE_COLUMN_ONE+")," +
-                "FOREIGN KEY("+EDGE_TABLE_COLUMN_FOUR+") REFERENCES "+VERTEX_TABLE_NAME+"("+VERTEX_TABLE_COLUMN_ONE+"))";
-        db.execSQL(sql);
-        sql = "CREATE TABLE " + EDGE_VERTEX_JOIN_TABLE_NAME + " (" +
-                EDGE_VERTEX_JOIN_TABLE_COLUMN_ONE + " INTEGER PRIMARY KEY," + //ID
-                EDGE_VERTEX_JOIN_TABLE_COLUMN_TWO + " INTEGER," + //EDGE'S ID
-                EDGE_VERTEX_JOIN_TABLE_COLUMN_THREE + " INTEGER," + //VERTEX'S ID
-                EDGE_VERTEX_JOIN_TABLE_COLUMN_FOUR + " INTEGER," + //VERTEX POSITION
-                "FOREIGN KEY("+EDGE_VERTEX_JOIN_TABLE_COLUMN_TWO+") REFERENCES "+EDGE_TABLE_NAME+"("+EDGE_TABLE_COLUMN_ONE+")," +
-                "FOREIGN KEY("+EDGE_VERTEX_JOIN_TABLE_COLUMN_THREE+") REFERENCES "+VERTEX_TABLE_NAME+"("+VERTEX_TABLE_COLUMN_ONE+"))";
-        db.execSQL(sql);
+        db.execSQL("DELETE FROM " + DATABASE_VERSION_TABLE_NAME);
 
+        populateVersionNum(db, 5);
     }
 
     public void updateGraphData(SQLiteDatabase db, int versionNum, JSONObject newData) {
@@ -220,7 +197,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.execSQL("DELETE FROM " + VERTEX_TABLE_NAME);
         db.execSQL("DELETE FROM " + EDGE_TABLE_NAME);
         db.execSQL("DELETE FROM " + EDGE_VERTEX_JOIN_TABLE_NAME);
-        db.execSQL("DELETE FROM " + DATABASE_VERSION_TABLE_NAME);
 
         Log.d("DB VERSION UPDATE", "Start extracting data from JSON object: " + newData.toString());
         try {
@@ -258,6 +234,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
             if (successful) {
                 Log.d("DB VERSION UPDATE", "Insert new version number");
+                db.execSQL("DELETE FROM " + DATABASE_VERSION_TABLE_NAME);
                 populateVersionNum(db, versionNum);
             }
         } catch (JSONException e) {

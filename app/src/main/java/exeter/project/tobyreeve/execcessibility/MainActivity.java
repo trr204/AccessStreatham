@@ -4,6 +4,9 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.drawable.Drawable;
+import android.media.Image;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
@@ -24,6 +27,7 @@ import com.android.volley.toolbox.JsonObjectRequest;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -34,32 +38,40 @@ public class MainActivity extends AppCompatActivity {
     DatabaseHelper helper;
     Graph campus;
     MyCanvas canvas;
-    int canvasWidth;
-    int canvasHeight;
+    float canvasWidth;
+    float canvasHeight;
     Vertex start;
     Vertex end;
+    Bitmap tile;
 
-    final double maxLatitude = 50.7380400;
-    final double minLatitude = 50.7360000;
-    final double maxLongitude = -3.5295900;
-    final double minLongitude = -3.5350400;
+    final double maxLatitude = 50.7416700; //TODO STORE THESE IN DATABASE
+    final double minLatitude = 50.7316700;
+    final double maxLongitude = -3.5238600;
+    final double minLongitude = -3.5458300;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Bitmap tile = BitmapFactory.decodeResource(getResources(), R.drawable.test1);
         RequestQueue queue = RequestQueueHandler.getInstance().getRequestQueue();
-        canvasWidth = tile.getWidth();
-        canvasHeight = tile.getHeight();
         checkForGraphUpdate();
 
         canvas = new MyCanvas(this);
         canvas.getSettings().setBuiltInZoomControls(true);
         canvas.getSettings().setDisplayZoomControls(true);
-        canvas.loadUrl("file:///android_res/drawable/test1.png");
+        canvas.loadUrl("file:///android_res/drawable/full_map_19.png");
         setContentView(R.layout.activity_main);
         RelativeLayout layout = findViewById(R.id.activity_main);
-        layout.addView(canvas);
+        layout.addView(canvas);/*
+        if (tile == null) {
+            tile = BitmapFactory.decodeResource(getResources(), R.drawable.full_map_19); //TODO CHANGE THIS
+        }
+        canvasWidth = tile.getWidth();
+        canvasHeight = tile.getHeight();*/
+
+        Drawable d = getResources().getDrawable(R.drawable.full_map_19);
+        canvasHeight = d.getIntrinsicHeight();
+        canvasWidth = d.getIntrinsicWidth();
+
         //getSupportActionBar().hide();
         FloatingActionButton planRouteFab = findViewById(R.id.plan_route_button);
         planRouteFab.setOnClickListener(new View.OnClickListener() {
@@ -124,6 +136,8 @@ public class MainActivity extends AppCompatActivity {
                 return super.onOptionsItemSelected(item);
         }
     }
+
+
 
     public void setUpGraph() {
         Log.d("SETUP", "Set up start");
@@ -234,7 +248,7 @@ public class MainActivity extends AppCompatActivity {
         Cursor versionCursor = helper.getVersionNum();
         versionCursor.moveToNext();
         final int currentClientVersion = versionCursor.getInt(0);
-        JsonObjectRequest jor = new JsonObjectRequest(Request.Method.GET, "http://10.0.2.2:3000/version", null, new Response.Listener<JSONObject>() {
+        JsonObjectRequest jor = new JsonObjectRequest(Request.Method.GET, "http://192.168.0.34:3000/version", null, new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {
                 Log.d("Version HTTP RESP", response.toString());
@@ -268,11 +282,11 @@ public class MainActivity extends AppCompatActivity {
             }
         };
         RequestQueueHandler.getInstance().addToRequestQueue(jor);
-        Log.d("HTTP REQUEST", "SENT");
+        Log.d("HTTP REQUEST", "VERSION REQ SENT");
     }
 
     public void getUpdatedGraphData(final int newVersionNum, final DatabaseHelper helper) {
-        JsonObjectRequest jor = new JsonObjectRequest(Request.Method.GET, "http://10.0.2.2:3000/graphdata", null, new Response.Listener<JSONObject>() {
+        JsonObjectRequest jor = new JsonObjectRequest(Request.Method.GET, "http://192.168.0.34:3000/graphdata", null, new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {
                 Log.d("GraphUpdate HTTP RESP", response.toString());
@@ -299,7 +313,7 @@ public class MainActivity extends AppCompatActivity {
             }
         };
         RequestQueueHandler.getInstance().addToRequestQueue(jor);
-        Log.d("HTTP REQUEST", "SENT");
+        Log.d("HTTP REQUEST", "UPDATE REQ SENT");
 
     }
 }
