@@ -44,6 +44,7 @@ public class RouteSpecification extends AppCompatActivity {
                 vertices.add(String.valueOf(vCursor.getInt(0)));
             }
         }
+        //TODO Persist source and destination for easy recalculation?
         source.setAdapter(new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, vertices));
         destination.setAdapter(new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, vertices));
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);

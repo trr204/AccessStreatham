@@ -85,16 +85,19 @@ public class Graph {
     }
 
 
-    public boolean calculateRoute(Vertex source, Vertex destination) {
+    public boolean calculateRoute(Vertex source, Vertex destination, Map<String, Integer> userPreferences) {
         //Routes calculated using A* Search algorithm, with Euclidean distance as the heuristic function
         //Location.distanceBetween returns approximate distance in metres between two locations
 
         //Dist(source, destination) - Dist(source, genericVertex)
 
+        int stairsPreference = userPreferences.get("AvoidStaircases");
+        int altitudePreference = userPreferences.get("DistanceOverAltitude");
+
         //Calculate approximate distance between source and destination
         float[] sourceDestDistance = new float[1];
         Location.distanceBetween(source.getLatitude(), source.getLongitude(), destination.getLatitude(), destination.getLongitude(), sourceDestDistance);
-
+        Log.d("PLANROUTE", "Estimated Euclidean distance between source and dest: " + String.valueOf(sourceDestDistance[0]));
         Log.d("PLANROUTE", "Start assigning heuristic values to vertices");
         for (Vertex v : this.getVertexMap().values()) {
             //Calculate approximate distance between current vertex and destination, this becomes the current vertex's heuristic value
@@ -121,6 +124,7 @@ public class Graph {
             for (Subedge s : subedgeList) {
                 //If the edge contains the current vertex, get the neighbouring vertex
                 Vertex neighbour = null;
+                boolean leftToRight = false;
                 if (s.getVertex1Id() == currentVertex.getId()) {
                     neighbour = vertexMap.get(s.getVertex2Id());
                 } else if (s.getVertex2Id() == currentVertex.getId()) {
@@ -130,12 +134,16 @@ public class Graph {
                 //If a neighbour has been found that has not already been searched by the algorithm
                 if (neighbour != null && !closedList.contains(neighbour)) {
                     //Calculate the approximate distance between the current vertex and the neighbour
-                    //TODO Convert to edge weight instead of Euclidean distance
                     float[] neighbourDistance = new float[1];
                     Location.distanceBetween(currentVertex.getLatitude(), currentVertex.getLongitude(), neighbour.getLatitude(), neighbour.getLongitude(), neighbourDistance);
 
+                    //TODO Determine if incline or decline, should this affect?
+                    int elevationDifference = Math.abs(currentVertex.getElevation() - neighbour.getElevation());
+                    //boolean incline = (elevationDifference < 0) ? true : false;
+                    //float altitudeScalar = incline ? 2 : 1/2;
+
                     //Approximate distance of current path from source to neighbour
-                    float tentativeG = neighbourDistance[0] + currentVertex.getG();
+                    float tentativeG = (neighbourDistance[0]+(float)0.5*stairsPreference+(float)0.5*altitudePreference*elevationDifference) + currentVertex.getG();
 
                     //If the approximated distance between start and neighbour is smaller than the currently stored distance between start and neighbour
                     if (tentativeG < neighbour.getG()) {
@@ -158,6 +166,7 @@ public class Graph {
     public boolean path(Map<Integer, Integer> path, Vertex destination) {
         //Use IDs in path to get list of vertices
 
+        Log.d("PLANROUTE", "Total path cost: " + String.valueOf(destination.getG()));
         final List<Vertex> pathList = new ArrayList<Vertex>();
         pathList.add(destination);
         //Work back from the destination to add the path steps that apply
@@ -165,12 +174,13 @@ public class Graph {
             destination = vertexMap.get(path.get(destination.getId()));
             pathList.add(destination);
         }
-        //Reset all vertices' current distance values
-        for (Vertex v : pathList) {
-            v.setG(Float.MAX_VALUE);
-        }
         Collections.reverse(pathList);
+        //Reset all vertices' current distance values
+        for (Map.Entry<Integer, Vertex> entry: vertexMap.entrySet()) {
+            entry.getValue().setG(Float.MAX_VALUE);
+        }
         this.calculatedPathList = pathList;
         return true;
     }
+
 }

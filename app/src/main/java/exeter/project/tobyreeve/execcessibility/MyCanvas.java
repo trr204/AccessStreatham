@@ -10,6 +10,7 @@ import android.webkit.WebView;
 public class MyCanvas extends WebView {
     Paint paint;
     Graph campus;
+    float initialScaleFactor;
 
     public MyCanvas(Context context) {
         super(context);
@@ -19,10 +20,10 @@ public class MyCanvas extends WebView {
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
-        float scaleFactor = getScale()/((float)2.0);
+        float scaleFactor = getScale()/initialScaleFactor;
+        //TODO Consider only drawing stuff that would be visible onscreen
         Log.d("CANVAS ONDRAW", "Current scale: " + String.valueOf(getScale()) + ", Current scale factor: " + String.valueOf(scaleFactor) + ", Current ScrollX value: " + String.valueOf(getScrollX()) + ", Current ScrollY value:" + String.valueOf(getScrollY()));
         if (campus != null) {
-            paint.setColor(Color.RED);
             paint.setStyle(Paint.Style.FILL);
             Log.d("CANVAS ONDRAW", "Start drawing start (v1) and end (v2) vertex for each edge");
             for (int i = 1; i < campus.getEdgeMap().size(); i++) {
@@ -30,10 +31,30 @@ public class MyCanvas extends WebView {
                 if (e != null) {
                     Vertex v1 = e.getVertexList().get(0);
                     Vertex v2 = e.getVertexList().get(e.getVertexList().size() - 1);
+                    if (v1.getElevation() <= 50) {
+                        paint.setColor(Color.YELLOW);
+                    } else if (v1.getElevation() >= 100) {
+                        paint.setColor(Color.RED);
+                    } else {
+                        paint.setColor(Color.MAGENTA);
+                    }
                     canvas.drawCircle(scaleFactor * ((float) v1.getX()), (float) scaleFactor * ((float) v1.getY()), scaleFactor * 10, paint);
+
+                    if (v2.getElevation() <= 50) {
+                        paint.setColor(Color.YELLOW);
+                    } else if (v2.getElevation() >= 100) {
+                        paint.setColor(Color.RED);
+                    } else {
+                        paint.setColor(Color.MAGENTA);
+                    }
                     canvas.drawCircle((float) scaleFactor * ((float) v2.getX()), (float) scaleFactor * ((float) v2.getY()), scaleFactor * 10, paint);
-                    //canvas.drawCircle((float) v1.getX(), (float) v1.getY(), scaleFactor * 10, paint);
-                    //canvas.drawCircle((float) v2.getX(), (float) v2.getY(), scaleFactor * 10, paint);
+                    float temp = paint.getStrokeWidth();
+                    if (e.isStairs()) {
+                        paint.setColor(Color.CYAN);
+                        paint.setStrokeWidth(scaleFactor*10);
+                        canvas.drawLine((float) scaleFactor*((float) v1.getX()), (float) scaleFactor*((float) v1.getY()), (float) scaleFactor*((float) v2.getX()), (float) scaleFactor*((float) v2.getY()), paint);
+                    }
+                    paint.setStrokeWidth(temp);
                 }
             }
 
@@ -60,5 +81,7 @@ public class MyCanvas extends WebView {
     public void setGraph(Graph campus) {
         this.campus = campus;
     }
+
+    public void setInitialScaleFactor(float initialScaleFactor) {this.initialScaleFactor = initialScaleFactor;}
 
 }

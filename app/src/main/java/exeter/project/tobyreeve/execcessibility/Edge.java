@@ -7,14 +7,16 @@ public class Edge implements Comparable<Edge>{
     private int id;
     private long osmId;
     private float weight;
+    private boolean stairs;
     private Map<Integer, Vertex> vertexList;
 
     public Edge() {}
 
-    public Edge(int id, long osmId, Map<Integer, Vertex> vertexList) {
+    public Edge(int id, long osmId, Map<Integer, Vertex> vertexList, boolean stairs) {
         this.id = id;
         this.osmId = osmId;
         this.vertexList = vertexList;
+        this.stairs = stairs;
     }
 
     public int compareTo(Edge otherEdge) {
@@ -33,6 +35,10 @@ public class Edge implements Comparable<Edge>{
         setId(id);
         return this;
     }
+
+    public boolean isStairs() {return stairs;}
+
+    public void setStairs(boolean stairs) {this.stairs = stairs;}
 
     public long getOsmId() {
         return osmId;

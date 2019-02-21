@@ -27,11 +27,13 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public static final String VERTEX_TABLE_COLUMN_TWO = "OSMID";
     public static final String VERTEX_TABLE_COLUMN_THREE = "Latitude";
     public static final String VERTEX_TABLE_COLUMN_FOUR = "Longitude";
+    public static final String VERTEX_TABLE_COLUMN_FIVE = "Elevation";
     public static final String EDGE_TABLE_NAME = "Edge";
     public static final String EDGE_TABLE_COLUMN_ONE = "ID";
     public static final String EDGE_TABLE_COLUMN_TWO = "OSMID";
     public static final String EDGE_TABLE_COLUMN_THREE = "StartVertexId";
     public static final String EDGE_TABLE_COLUMN_FOUR = "EndVertexId";
+    public static final String EDGE_TABLE_COLUMN_FIVE = "Stairs";
     public static final String EDGE_VERTEX_JOIN_TABLE_NAME = "Edge_Vertex";
     public static final String EDGE_VERTEX_JOIN_TABLE_COLUMN_ONE = "ID";
     public static final String EDGE_VERTEX_JOIN_TABLE_COLUMN_TWO = "EdgeId";
@@ -44,7 +46,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public static final String DATABASE_VERSION_TABLE_COLUMN_ONE = "VersionNum";
 
     public DatabaseHelper(Context context) {
-        super(context, DATABASE_NAME, null, 34);
+        super(context, DATABASE_NAME, null, 37);
     }
 
     @Override
@@ -82,6 +84,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 EDGE_TABLE_COLUMN_TWO + " TEXT," + //EDGE'S OSM ID
                 EDGE_TABLE_COLUMN_THREE + " INTEGER," + //START VERTEX'S ID
                 EDGE_TABLE_COLUMN_FOUR + " INTEGER," + //END VERTEX'S ID
+                EDGE_TABLE_COLUMN_FIVE + " INTEGER," + //STAIRS T/F
                 "FOREIGN KEY("+EDGE_TABLE_COLUMN_THREE+") REFERENCES "+VERTEX_TABLE_NAME+"("+VERTEX_TABLE_COLUMN_ONE+")," +
                 "FOREIGN KEY("+EDGE_TABLE_COLUMN_FOUR+") REFERENCES "+VERTEX_TABLE_NAME+"("+VERTEX_TABLE_COLUMN_ONE+"))";
         db.execSQL(sql);
@@ -186,9 +189,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        db.execSQL("DELETE FROM " + DATABASE_VERSION_TABLE_NAME);
+        /*db.execSQL("DELETE FROM " + DATABASE_VERSION_TABLE_NAME);
 
-        populateVersionNum(db, 5);
+        populateVersionNum(db, 6);*/
     }
 
     public void updateGraphData(SQLiteDatabase db, int versionNum, JSONObject newData) {
@@ -207,7 +210,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             Log.d("DB VERSION UPDATE", "Start inserting new Vertex data");
             for (int i = 0; i < vertexArray.length(); i++) {
                 JSONObject v = vertexArray.getJSONObject(i);
-                boolean temp = populateVertexData(db, v.getInt("VertexId"), v.getString("OsmId"), v.getString("Latitude"), v.getString("Longitude"));
+                boolean temp = populateVertexData(db, v.getInt("VertexId"), v.getString("OsmId"), v.getString("Latitude"), v.getString("Longitude"), v.getInt("Elevation"));
                 if (!temp) {
                     successful = false;
                 }
@@ -216,7 +219,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             Log.d("DB VERSION UPDATE", "Start inserting new Edge data");
             for (int i = 0; i < edgeArray.length(); i++) {
                 JSONObject e = edgeArray.getJSONObject(i);
-                boolean temp = populateEdgeData(db, e.getInt("EdgeId"), e.getString("OsmId"), e.getInt("StartVertexId"), e.getInt("EndVertexId"));
+                boolean temp = populateEdgeData(db, e.getInt("EdgeId"), e.getString("OsmId"), e.getInt("StartVertexId"), e.getInt("EndVertexId"), e.getBoolean("Stairs") == true ? 1 : 0);
                 if (!temp) {
                     successful = false;
                 }
@@ -276,22 +279,24 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return (result != -1);
     }
 
-    public boolean populateVertexData(SQLiteDatabase db, int id, String osmID, String latitude, String longitude) {
+    public boolean populateVertexData(SQLiteDatabase db, int id, String osmID, String latitude, String longitude, int elevation) {
         ContentValues contentValues = new ContentValues();
         contentValues.put(VERTEX_TABLE_COLUMN_ONE, id);
         contentValues.put(VERTEX_TABLE_COLUMN_TWO, osmID);
         contentValues.put(VERTEX_TABLE_COLUMN_THREE, latitude);
         contentValues.put(VERTEX_TABLE_COLUMN_FOUR, longitude);
+        contentValues.put(VERTEX_TABLE_COLUMN_FIVE, elevation);
         long result = db.insert(VERTEX_TABLE_NAME, null, contentValues);
         return (result != -1);
     }
 
-    public boolean populateEdgeData(SQLiteDatabase db, int id, String osmID, int startVertex, int endVertex) {
+    public boolean populateEdgeData(SQLiteDatabase db, int id, String osmID, int startVertex, int endVertex, int stairs) {
         ContentValues contentValues = new ContentValues();
         contentValues.put(EDGE_TABLE_COLUMN_ONE, id);
         contentValues.put(EDGE_TABLE_COLUMN_TWO, osmID);
         contentValues.put(EDGE_TABLE_COLUMN_THREE, startVertex);
         contentValues.put(EDGE_TABLE_COLUMN_FOUR, endVertex);
+        contentValues.put(EDGE_TABLE_COLUMN_FIVE, stairs);
         long result = db.insert(EDGE_TABLE_NAME, null, contentValues);
         return (result != -1);
     }

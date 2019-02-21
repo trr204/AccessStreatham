@@ -71,7 +71,7 @@ public class MainActivity extends AppCompatActivity {
         Drawable d = getResources().getDrawable(R.drawable.full_map_19);
         canvasHeight = d.getIntrinsicHeight();
         canvasWidth = d.getIntrinsicWidth();
-
+        canvas.setInitialScaleFactor(canvas.getScale());
         //getSupportActionBar().hide();
         FloatingActionButton planRouteFab = findViewById(R.id.plan_route_button);
         planRouteFab.setOnClickListener(new View.OnClickListener() {
@@ -80,16 +80,9 @@ public class MainActivity extends AppCompatActivity {
                 Log.d("PLANROUTE", "Planning a route fab clicked!");
                 Intent intentPlan = new Intent(MainActivity.this, RouteSpecification.class);
                 startActivityForResult(intentPlan, 1);
-
-
                 //TODO:
-                //click button
-                //new popup?
                 //list of specific sources and destinations (including multiple entrances for some buildings) attributed to specific nodes on the graph (plus current user location if enabled)
-                //choose source - populate spinner from database
-                //choose destination - populate spinner from database
-                //make source and destination interchangeable
-                //click calculate button = planRoute();
+
             }
         });
 
@@ -153,7 +146,7 @@ public class MainActivity extends AppCompatActivity {
 
         for (int i = 0; i < vCursor.getCount(); i++) {
             while(vCursor.moveToNext()) {
-                vertexList.add(new Vertex(vCursor.getInt(0), vCursor.getLong(1), vCursor.getFloat(2), vCursor.getFloat(3)));
+                vertexList.add(new Vertex(vCursor.getInt(0), vCursor.getLong(1), vCursor.getFloat(2), vCursor.getFloat(3), vCursor.getInt(4)));
 
             }
         }
@@ -166,7 +159,7 @@ public class MainActivity extends AppCompatActivity {
         Log.d("SETUPGRAPH", "joinList populated");
         for (int i = 0; i < eCursor.getCount(); i++) {
             while(eCursor.moveToNext()) {
-                edgeList.add(new Edge(eCursor.getInt(0), eCursor.getLong(1), new HashMap<Integer, Vertex>()));
+                edgeList.add(new Edge(eCursor.getInt(0), eCursor.getLong(1), new HashMap<Integer, Vertex>(), eCursor.getInt(4) == 1 ? true : false));
             }
         }
         Log.d("SETUPGRAPH", "edgeList populated");
@@ -196,7 +189,7 @@ public class MainActivity extends AppCompatActivity {
         List<Subedge> subedgeList = new ArrayList<Subedge>();
         for (Edge e : edgeList) {
             for (int s = 0; s < e.getVertexList().size() - 1; s++) {
-                subedgeList.add(new Subedge(e.getId(), e.getVertexList().get(s).getId(), e.getVertexList().get(s+1).getId()));
+                subedgeList.add(new Subedge(e.getId(), e.getVertexList().get(s).getId(), e.getVertexList().get(s+1).getId(), e.isStairs()));
             }
         }
         Log.d("SETUPGRAPH", "subedgeList populated");
@@ -234,7 +227,15 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void planRoute(Vertex source, Vertex destination) {
-        campus.calculateRoute(source, destination);
+        Cursor upCursor = helper.getUserPreferenceData();
+        Map<String, Integer> userPreferences = new HashMap<String, Integer>();
+        for (int i = 0; i < upCursor.getCount(); i++) {
+            while (upCursor.moveToNext()) {
+                userPreferences.put(upCursor.getString(0), upCursor.getInt(1));
+            }
+        }
+        Log.d("PLANROUTE", userPreferences.toString());
+        campus.calculateRoute(source, destination, userPreferences);
         canvas.postInvalidate();
         Log.d("PLANROUTE", "Route calculation finished, path size: " + String.valueOf(campus.getCalculatedPathList().size()));
     }

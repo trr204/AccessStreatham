@@ -6,17 +6,19 @@ public class Vertex implements Comparable<Vertex> {
     private double latitude;
     private double longitude;
     private double heuristicValue;
+    private int elevation;
     private float g; //Distance from source to this vertex
     private double x;
     private double y;
 
     public Vertex() {}
 
-    public Vertex(int id, long osmID, double latitude, double longitude) {
+    public Vertex(int id, long osmID, double latitude, double longitude, int elevation) {
         this.id = id;
         this.osmID = osmID;
         this.latitude = latitude;
         this.longitude = longitude;
+        this.elevation = elevation;
         this.g = Float.MAX_VALUE;
     }
 
@@ -114,4 +116,8 @@ public class Vertex implements Comparable<Vertex> {
     public void setY(double y) {
         this.y = y;
     }
+
+    public int getElevation() {return elevation;}
+
+    public void setElevation(int elevation) {this.elevation = elevation;}
 }
