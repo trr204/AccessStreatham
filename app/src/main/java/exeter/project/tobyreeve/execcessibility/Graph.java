@@ -153,8 +153,12 @@ public class Graph {
                     //float altitudeScalar = incline ? 2 : 1/2;
 
                     //Approximate distance of current path from source to neighbour
-                    float tentativeG = (neighbourDistance[0]+(float)0.5*stairsPreference+(float)0.5*altitudePreference*elevationDifference) + currentVertex.getG();
-
+                    float tentativeG;
+                    if (stairsPreference == 10 && s.isStairs()) {
+                        tentativeG = Float.MAX_VALUE;
+                    } else {
+                        tentativeG = (neighbourDistance[0] + (float) 0.5 * stairsPreference + (float) 0.5 * altitudePreference * elevationDifference) + currentVertex.getG();
+                    }
                     //If the approximated distance between start and neighbour is smaller than the currently stored distance between start and neighbour
                     if (tentativeG < neighbour.getG()) {
                         neighbour.setG(tentativeG); //Update the neighbour
@@ -163,13 +167,9 @@ public class Graph {
                             openList.add(neighbour); //Add the neighbour to the queue if it isn't already there
                         }
                     }
-
-
                 }
-
             }
         }
-
         return path(path, destination);
     }
 
