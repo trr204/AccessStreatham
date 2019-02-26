@@ -1,5 +1,6 @@
 package exeter.project.tobyreeve.execcessibility;
 
+import android.app.AlertDialog;
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
@@ -10,11 +11,16 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
+import android.util.DisplayMetrics;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
+import android.widget.Button;
 import android.widget.RelativeLayout;
+import android.widget.Toast;
 
 import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
@@ -67,6 +73,10 @@ public class MainActivity extends AppCompatActivity {
         }
         canvasWidth = tile.getWidth();
         canvasHeight = tile.getHeight();*/
+        DisplayMetrics displayMetrics = new DisplayMetrics();
+        getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
+        canvas.setScreenHeight(displayMetrics.heightPixels);
+        canvas.setScreenWidth(displayMetrics.widthPixels);
 
         Drawable d = getResources().getDrawable(R.drawable.full_map_19);
         canvasHeight = d.getIntrinsicHeight();
@@ -79,6 +89,12 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View view) {
                 Log.d("PLANROUTE", "Planning a route fab clicked!");
                 Intent intentPlan = new Intent(MainActivity.this, RouteSpecification.class);
+                if (campus.getSource() != null) {
+                    intentPlan.putExtra("Source", campus.getSource().getId());
+                }
+                if (campus.getDestination() != null) {
+                    intentPlan.putExtra("Destination", campus.getDestination().getId());
+                }
                 startActivityForResult(intentPlan, 1);
                 //TODO:
                 //list of specific sources and destinations (including multiple entrances for some buildings) attributed to specific nodes on the graph (plus current user location if enabled)
@@ -131,7 +147,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-
     public void setUpGraph() {
         Log.d("SETUP", "Set up start");
         List<Vertex> vertexList = new ArrayList<Vertex>();
@@ -172,6 +187,9 @@ public class MainActivity extends AppCompatActivity {
             v.setY((1-(v.getLatitude() - minLatitude)/(maxLatitude - minLatitude)) * canvasHeight);
             v.setX(((v.getLongitude() - minLongitude)/(maxLongitude - minLongitude))*canvasWidth);
             vertexMap.put(v.getId(), v);
+            if (v.getId() == 251) {
+                Log.d("tempdebug", String.valueOf(v.getOsmID()));
+            }
         }
         Log.d("SETUPGRAPH", "vertexMap populated");
 
@@ -210,6 +228,8 @@ public class MainActivity extends AppCompatActivity {
     public void clearRoute() {
         campus.setCalculatedPathList(new ArrayList<Vertex>());
         canvas.postInvalidate();
+        campus.setSource(null);
+        campus.setDestination(null);
         Log.d("CLEARROUTE", "Route cleared");
     }
 
@@ -220,6 +240,7 @@ public class MainActivity extends AppCompatActivity {
                 Vertex source = campus.getVertexMap().get(Integer.valueOf(intent.getStringExtra("SOURCE")));
                 Vertex destination = campus.getVertexMap().get(Integer.valueOf(intent.getStringExtra("DESTINATION")));
                 clearRoute();
+                Log.d("tempdebug", "source/destination: " + String.valueOf(source.getOsmID()) + "/" + String.valueOf(destination.getOsmID()));
                 Log.d("PLANROUTE", "Source and destination acquired on MainActivity from RouteSpecification");
                 planRoute(source, destination);
             }
@@ -315,6 +336,42 @@ public class MainActivity extends AppCompatActivity {
         };
         RequestQueueHandler.getInstance().addToRequestQueue(jor);
         Log.d("HTTP REQUEST", "UPDATE REQ SENT");
+
+    }
+
+    public void showVertexDialog(final Vertex vertex) {
+        AlertDialog.Builder myBuilder = new AlertDialog.Builder(this);
+        View mView = getLayoutInflater().inflate(R.layout.dialog_vertex, null);
+        myBuilder.setView(mView);
+        final AlertDialog dialog = myBuilder.create();
+
+        dialog.show();
+        dialog.getWindow().setLayout(500, 360);
+        Button sourceButton = (Button) mView.findViewById(R.id.vertex_select_source_button);
+        sourceButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                campus.setSource(vertex);
+                canvas.postInvalidate();
+                dialog.dismiss();
+            }
+        });
+        Button destinationButton = mView.findViewById(R.id.vertex_select_destination_button);
+        destinationButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                campus.setDestination(vertex);
+                canvas.postInvalidate();
+                dialog.dismiss();
+            }
+        });
+        Button incidentButton = mView.findViewById(R.id.vertex_select_incident_button);
+        incidentButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Toast.makeText(MyApp.get(), "Feature coming soon!", Toast.LENGTH_SHORT).show();
+            }
+        });
 
     }
 }

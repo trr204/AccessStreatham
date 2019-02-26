@@ -49,6 +49,17 @@ public class RouteSpecification extends AppCompatActivity {
         destination.setAdapter(new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, vertices));
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
+        int sourcePos = getIntent().getIntExtra("Source", 0);
+        int destinationPos = getIntent().getIntExtra("Destination", 0);
+        if (sourcePos != 0) {
+            sourcePos -= 1;
+        }
+        if (destinationPos != 0) {
+            destinationPos -= 1;
+        }
+        source.setSelection(sourcePos);
+        destination.setSelection(destinationPos);
+
         ImageButton swapButton = findViewById(R.id.swap_button);
         swapButton.setOnClickListener(new View.OnClickListener() {
             @Override

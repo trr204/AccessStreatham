@@ -2,5 +2,8 @@
     <string name="app_name">AccessStreatham</string>
     <string name="FeatureActivityBuildingName"></string>
     <string name="title_activity_simple_content">SimpleContentActivity</string>
-    <string name="title_activity_route_specification">RouteSpecification</string>
+    <string name="title_activity_route_specification">Route Specification</string>
+    <string name="vertex_select_source">Select as Source</string>
+    <string name="vertex_select_destination">Select as Destination</string>
+    <string name="vertex_select_incident">Report an Incident</string>
 </resources>

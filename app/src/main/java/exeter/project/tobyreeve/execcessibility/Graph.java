@@ -20,6 +20,8 @@ public class Graph {
     private double maxLongitude;
     private double minLatitude;
     private double maxLatitude;
+    private Vertex source;
+    private Vertex destination;
 
     public Graph() {}
     public Graph(Map<Integer, Edge> edgeMap, Map<Integer, Vertex> vertexMap, List<Subedge> subedgeList, double minLongitude,
@@ -54,6 +56,14 @@ public class Graph {
     public double getMinLatitude() {return minLatitude;}
 
     public double getMaxLatitude() {return maxLatitude;}
+
+    public void setSource(Vertex source) {this.source = source;}
+
+    public Vertex getSource() {return source;}
+
+    public void setDestination(Vertex destination) {this.destination = destination;}
+
+    public Vertex getDestination() {return destination;}
 
     public List<Subedge> getSubedgeList() {return subedgeList;}
 
