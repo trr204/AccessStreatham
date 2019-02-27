@@ -76,7 +76,7 @@ public class MyCanvas extends WebView {
             }
 
             Log.d("CANVAS ONDRAW", "Check if calculated path needs to be drawn");
-            if (campus.getCalculatedPathList().size() > 0) {
+            if (campus.getCalculatedPathList().size() > 1) {
                 Log.d("PLANROUTE", "Start drawing calculated route vertices");
                 paint.setColor(Color.BLUE);
                 for (Vertex v : campus.getCalculatedPathList()) {
