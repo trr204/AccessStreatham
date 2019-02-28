@@ -4,19 +4,14 @@ import android.app.AlertDialog;
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.drawable.Drawable;
-import android.media.Image;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.util.DisplayMetrics;
 import android.util.Log;
-import android.util.TypedValue;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.RelativeLayout;
@@ -33,7 +28,6 @@ import com.android.volley.toolbox.JsonObjectRequest;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -372,7 +366,10 @@ public class MainActivity extends AppCompatActivity {
         incidentButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(MyApp.get(), "Feature coming soon!", Toast.LENGTH_SHORT).show();
+                dialog.dismiss();
+                Intent intentIncident = new Intent(MainActivity.this, IncidentReporting.class);
+                intentIncident.putExtra("VertexId", vertex.getId());
+                startActivityForResult(intentIncident, 1);
             }
         });
 

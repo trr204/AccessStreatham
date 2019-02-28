@@ -27,7 +27,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public static final String VERTEX_TABLE_COLUMN_TWO = "OSMID";
     public static final String VERTEX_TABLE_COLUMN_THREE = "Latitude";
     public static final String VERTEX_TABLE_COLUMN_FOUR = "Longitude";
-    public static final String VERTEX_TABLE_COLUMN_FIVE = "Elevation";
+    public static final String VERTEX_TABLE_COLUMN_FIVE = "Elevation";;
+    public static final String VERTEX_TABLE_COLUMN_SIX = "IncidentDescription";
+    public static final String VERTEX_TABLE_COLUMN_SEVEN = "IncidentReportedAtTime";
+    public static final String VERTEX_TABLE_COLUMN_EIGHT = "IncidentId";
     public static final String EDGE_TABLE_NAME = "Edge";
     public static final String EDGE_TABLE_COLUMN_ONE = "ID";
     public static final String EDGE_TABLE_COLUMN_TWO = "OSMID";
@@ -76,7 +79,11 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 VERTEX_TABLE_COLUMN_ONE + " INTEGER PRIMARY KEY AUTOINCREMENT," + //ID
                 VERTEX_TABLE_COLUMN_TWO + " TEXT," + //VERTEX'S OSM ID
                 VERTEX_TABLE_COLUMN_THREE + " REAL," + //LATITUDE
-                VERTEX_TABLE_COLUMN_FOUR + " REAL)"; //LONGITUDE
+                VERTEX_TABLE_COLUMN_FOUR + " REAL," + //LONGITUDE
+                VERTEX_TABLE_COLUMN_FIVE + " REAL," + //ELEVATION
+                VERTEX_TABLE_COLUMN_SIX + " REAL," + //INCIDENT ID
+                VERTEX_TABLE_COLUMN_SEVEN + " REAL," + //INCIDENT DESCRIPTION
+                VERTEX_TABLE_COLUMN_EIGHT + " REAL)"; //INCIDENT REPORTED AT TIME
         db.execSQL(sql);
         Log.d("DATABASE CREATE", "Create Edge table");
         sql = "CREATE TABLE " + EDGE_TABLE_NAME + " (" +
@@ -192,6 +199,18 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         /*db.execSQL("DELETE FROM " + DATABASE_VERSION_TABLE_NAME);
 
         populateVersionNum(db, 6);*/
+        String sql = "DROP TABLE IF EXISTS " + VERTEX_TABLE_NAME;
+        db.execSQL(sql);
+        sql = "CREATE TABLE " + VERTEX_TABLE_NAME + " (" +
+                VERTEX_TABLE_COLUMN_ONE + " INTEGER PRIMARY KEY AUTOINCREMENT," + //ID
+                VERTEX_TABLE_COLUMN_TWO + " TEXT," + //VERTEX'S OSM ID
+                VERTEX_TABLE_COLUMN_THREE + " REAL," + //LATITUDE
+                VERTEX_TABLE_COLUMN_FOUR + " REAL," + //LONGITUDE
+                VERTEX_TABLE_COLUMN_FIVE + " REAL," + //ELEVATION
+                VERTEX_TABLE_COLUMN_SIX + " INTEGER," + //INCIDENT ID
+                VERTEX_TABLE_COLUMN_SEVEN + " REAL," + //INCIDENT DESCRIPTION
+                VERTEX_TABLE_COLUMN_EIGHT + " REAL)"; //INCIDENT REPORTED AT TIME
+        db.execSQL(sql);
     }
 
     public void updateGraphData(SQLiteDatabase db, int versionNum, JSONObject newData) {
@@ -380,6 +399,24 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public void updateUserPreference(SQLiteDatabase db, String prefKey, int prefValue) {
         String sql = "UPDATE "+USER_PREFERENCES_TABLE_NAME+" SET "+USER_PREFERENCES_TABLE_COLUMN_TWO+"="+prefValue+" WHERE "+USER_PREFERENCES_TABLE_COLUMN_ONE+"='"+prefKey+"'";
         db.execSQL(sql);
+    }
+
+    public Incident getIncidentData(int vertexId) {
+        String sql = "SELECT " + VERTEX_TABLE_COLUMN_EIGHT + "," + VERTEX_TABLE_COLUMN_SIX + "," + VERTEX_TABLE_COLUMN_SEVEN + " FROM " +
+                VERTEX_TABLE_NAME + " WHERE " + VERTEX_TABLE_COLUMN_ONE + " = " + String.valueOf(vertexId);
+        SQLiteDatabase db = this.getWritableDatabase();
+        Cursor res = db.rawQuery(sql, null);
+        Incident incident = new Incident();
+        if (res.getCount()>0) {
+            res.moveToFirst();
+            incident.setId(res.getInt(0));
+            incident.setDescription(res.getString(1));
+            incident.setReportedAtTime(res.getString(2));
+        } else {
+            incident.setId(-1); //No Incident found
+            incident.setDescription("No incident reported here.");
+        }
+        return incident;
     }
 
 

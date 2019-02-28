@@ -1,19 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="exeter.project.tobyreeve.execcessibility">
-    <uses-permission android:name="android.permission.INTERNET"/>
+
+    <uses-permission android:name="android.permission.INTERNET" />
+
     <application
+        android:name=".MyApp"
         android:allowBackup="true"
-        android:name="exeter.project.tobyreeve.execcessibility.MyApp"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
-        android:usesCleartextTraffic="true"
         android:supportsRtl="true"
-        android:theme="@style/AppTheme">
-        <activity android:name=".MainActivity"
-            android:screenOrientation="landscape"
-            android:launchMode="singleTop">
+        android:theme="@style/AppTheme"
+        android:usesCleartextTraffic="true">
+        <activity
+            android:name=".MainActivity"
+            android:launchMode="singleTop"
+            android:screenOrientation="landscape">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -23,28 +26,32 @@
         <activity
             android:name=".Preferences"
             android:label="Set your Preferences"
-            android:screenOrientation="landscape"
-            android:parentActivityName=".MainActivity" />
+            android:parentActivityName=".MainActivity"
+            android:screenOrientation="landscape" />
         <activity
             android:name=".RouteSpecification"
             android:label="Plan your Route"
-            android:screenOrientation="landscape"
-            android:parentActivityName=".MainActivity" />
+            android:parentActivityName=".MainActivity"
+            android:screenOrientation="landscape" />
         <activity
             android:name=".Buildings"
-            android:screenOrientation="landscape"
             android:label="Streatham Campus Buildings"
-            android:parentActivityName=".MainActivity" />
+            android:parentActivityName=".MainActivity"
+            android:screenOrientation="landscape" />
         <activity
             android:name=".Feature"
-            android:screenOrientation="landscape"
             android:label="@string/FeatureActivityBuildingName"
-            android:parentActivityName=".Buildings" />
+            android:parentActivityName=".Buildings"
+            android:screenOrientation="landscape" />
         <activity
             android:name=".SimpleContentActivity"
-            android:screenOrientation="landscape"
             android:label="@string/title_activity_simple_content"
+            android:screenOrientation="landscape"
             android:theme="@style/AppTheme.NoActionBar" />
+        <activity android:name=".IncidentReporting"
+            android:label="Incidents"
+            android:parentActivityName=".MainActivity"
+            android:screenOrientation="landscape"></activity>
     </application>
 
 </manifest>
