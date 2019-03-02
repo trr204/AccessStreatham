@@ -267,7 +267,7 @@ public class MainActivity extends AppCompatActivity {
         Cursor versionCursor = helper.getVersionNum();
         versionCursor.moveToNext();
         final int currentClientVersion = versionCursor.getInt(0);
-        JsonObjectRequest jor = new JsonObjectRequest(Request.Method.GET, "http://192.168.0.34:3000/version", null, new Response.Listener<JSONObject>() {
+        JsonObjectRequest jor = new JsonObjectRequest(Request.Method.GET, "http://192.168.0.25:3000/version", null, new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {
                 Log.d("Version HTTP RESP", response.toString());
@@ -305,7 +305,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void getUpdatedGraphData(final int newVersionNum, final DatabaseHelper helper) {
-        JsonObjectRequest jor = new JsonObjectRequest(Request.Method.GET, "http://192.168.0.34:3000/graphdata", null, new Response.Listener<JSONObject>() {
+        JsonObjectRequest jor = new JsonObjectRequest(Request.Method.GET, "http://192.168.0.25:3000/graphdata", null, new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {
                 Log.d("GraphUpdate HTTP RESP", response.toString());
