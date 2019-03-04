@@ -11,6 +11,9 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class DatabaseHelper extends SQLiteOpenHelper {
     public static final String DATABASE_NAME = "EXccessibility.db";
     public static final String BUILDING_TABLE_NAME = "Building";
@@ -49,7 +52,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public static final String DATABASE_VERSION_TABLE_COLUMN_ONE = "VersionNum";
 
     public DatabaseHelper(Context context) {
-        super(context, DATABASE_NAME, null, 39);
+        super(context, DATABASE_NAME, null, 40);
     }
 
     @Override
@@ -116,6 +119,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         Log.d("DATABASE CREATE", "Insert initial USerPreference data");
         populateUserPreferencesData(db, "AvoidStaircases", 0);
         populateUserPreferencesData(db, "DistanceOverAltitude", 0);
+        populateUserPreferencesData(db, "AvoidIncidents", 0);
 
         Log.d("DATABASE CREATE", "Insert Building data");
         populateBuildingData(db, "Amory","");
@@ -199,7 +203,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         /*db.execSQL("DELETE FROM " + DATABASE_VERSION_TABLE_NAME);
 
         populateVersionNum(db, 6);*/
-        populateVertexData(db,1,"59817503","50.73196850","-3.53817230",45);
+
+        populateUserPreferencesData(db, "AvoidIncidents", 0);
+        /*populateVertexData(db,1,"59817503","50.73196850","-3.53817230",45);
         populateVertexData(db,2,"210545943","50.73735630","-3.53693080",96);
         populateVertexData(db,3,"210545945","50.73630680","-3.53660250",96);
         populateVertexData(db,4,"210545946","50.73599120","-3.53597040",96);
@@ -2432,7 +2438,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         populateVertexData(db,2231,"6175168727","50.73547740","-3.53232170",73);
         populateVertexData(db,2232,"6175168728","50.73533590","-3.53213380",60);
         populateVertexData(db,2233,"6175181097","50.73597680","-3.53514230",85);
-        populateVertexData(db,2234,"6175181099","50.73591300","-3.53516150",85);
+        populateVertexData(db,2234,"6175181099","50.73591300","-3.53516150",85);*/
     }
 
     public void updateGraphData(SQLiteDatabase db, int versionNum, JSONObject newData) {
@@ -2638,6 +2644,43 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             incident.setDescription("No incident reported here.");
         }
         return incident;
+    }
+
+    public void updateIncidents(SQLiteDatabase db, JSONObject response) {
+        String sql = "UPDATE " + VERTEX_TABLE_NAME + " SET " + VERTEX_TABLE_COLUMN_EIGHT + " = 0," +
+                VERTEX_TABLE_COLUMN_SIX + " = ''," + VERTEX_TABLE_COLUMN_SEVEN + " = ''";
+        db.execSQL(sql);
+        try {
+            JSONArray incidents = response.getJSONArray("incidents");
+            for (int i = 0; i < incidents.length(); i++) {
+                JSONObject o = incidents.getJSONObject(i);
+                populateIncidentData(db, o.getInt("ReportId"), o.getInt("VertexId"), o.getString("Description"), o.getString("ReportedAt"));
+            }
+        } catch (JSONException j) {
+            j.printStackTrace();
+        }
+
+    }
+
+    public void populateIncidentData(SQLiteDatabase db, int reportId, int vertexId, String description, String reportedAt) {
+        String sql = "UPDATE " + VERTEX_TABLE_NAME + " SET " + VERTEX_TABLE_COLUMN_EIGHT + " = " + String.valueOf(reportId) + "," +
+                VERTEX_TABLE_COLUMN_SIX + " = '" + description + "'," + VERTEX_TABLE_COLUMN_SEVEN + " = '" + reportedAt +
+                "' WHERE " + VERTEX_TABLE_COLUMN_ONE + " = " + String.valueOf(vertexId);
+        db.execSQL(sql);
+    }
+
+    public List<Incident> getIncidents() {
+        String sql = "SELECT " + VERTEX_TABLE_COLUMN_EIGHT + "," + VERTEX_TABLE_COLUMN_ONE + "," + VERTEX_TABLE_COLUMN_SIX + "," + VERTEX_TABLE_COLUMN_SEVEN + " FROM " +
+            VERTEX_TABLE_NAME + " WHERE " + VERTEX_TABLE_COLUMN_EIGHT + " > 0";
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor res = db.rawQuery(sql, null);
+        List<Incident> incidents = new ArrayList<Incident>();
+        if (res.getCount()>0) {
+            while (res.moveToNext()) {
+                    incidents.add(new Incident(res.getInt(0), res.getInt(1), res.getString(2), res.getString(3)));
+            }
+        }
+        return incidents;
     }
 
 

@@ -135,6 +135,9 @@ public class MainActivity extends AppCompatActivity {
                 Intent intentBuildings = new Intent(this, Buildings.class);
                 this.startActivity(intentBuildings);
                 return true;
+            case R.id.incidents:
+                getIncidents();
+                return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
@@ -215,6 +218,7 @@ public class MainActivity extends AppCompatActivity {
         campus = new Graph(edgeMap, vertexMap, subedgeList,minLongitude , maxLongitude,minLatitude ,maxLatitude);
         //TODO
         canvas.setGraph(campus);
+        getIncidents();
         canvas.postInvalidate();
         Log.d("SETUPGRAPH", "Finished. Vertex total: " + String.valueOf(campus.getVertexMap().size()) + ", Edge total: " + String.valueOf(campus.getEdgeMap().size()));
     }
@@ -231,12 +235,22 @@ public class MainActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, intent);
         if (requestCode == 1) {
             if (resultCode == RESULT_OK) {
-                Vertex source = campus.getVertexMap().get(Integer.valueOf(intent.getStringExtra("SOURCE")));
-                Vertex destination = campus.getVertexMap().get(Integer.valueOf(intent.getStringExtra("DESTINATION")));
-                clearRoute();
-                Log.d("tempdebug", "source/destination: " + String.valueOf(source.getOsmID()) + "/" + String.valueOf(destination.getOsmID()));
-                Log.d("PLANROUTE", "Source and destination acquired on MainActivity from RouteSpecification");
-                planRoute(source, destination);
+                switch (intent.getStringExtra("ORIGIN")) {
+                    case "RouteSpecification":
+                        Vertex source = campus.getVertexMap().get(Integer.valueOf(intent.getStringExtra("SOURCE")));
+                        Vertex destination = campus.getVertexMap().get(Integer.valueOf(intent.getStringExtra("DESTINATION")));
+                        clearRoute();
+                        Log.d("tempdebug", "source/destination: " + String.valueOf(source.getOsmID()) + "/" + String.valueOf(destination.getOsmID()));
+                        Log.d("PLANROUTE", "Source and destination acquired on MainActivity from RouteSpecification");
+                        planRoute(source, destination);
+                        break;
+                    case "NewIncidentTab":
+                        getIncidents();
+                        break;
+                    case "CurrentIncidentTab":
+                        getIncidents();
+                        break;
+                }
             }
         }
     }
@@ -373,5 +387,52 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+    }
+
+    public void getIncidents() {
+        JsonObjectRequest jor = new JsonObjectRequest(Request.Method.GET, "http://192.168.0.25:3000/incident/list", null, new Response.Listener<JSONObject>() {
+            @Override
+            public void onResponse(JSONObject response) {
+                Log.d("IncidentList HTTP RESP", response.toString());
+                helper.updateIncidents(helper.getWritableDatabase(), response);
+                updateGraphWithIncidents();
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                if (error instanceof TimeoutError) {
+                    Log.e("IncidentList HTTP ERR", "No connection could be made");
+                } else {
+                    Log.e("IncidentList HTTP ERR", error.getMessage());
+                }
+                Toast.makeText(MyApp.get(), "Failed to retrieve incidents data", Toast.LENGTH_LONG).show();
+            }
+        }){
+            @Override
+            public Map getHeaders() throws AuthFailureError {
+                HashMap headers = new HashMap();
+                headers.put("Content-Type", "application/json");
+                headers.put("x-auth", "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VybmFtZSI6InRlc3QifQ.eIRXuuKEmcqrZ2GHGcu0fGp5ypHcNy1gxTJBZ11Dz-I");
+                return headers;
+            }
+        };
+        RequestQueueHandler.getInstance().addToRequestQueue(jor);
+        Log.d("HTTP REQUEST", "IncidentList REQ SENT");
+
+    }
+
+    public void updateGraphWithIncidents() {
+        List<Incident> incidents = helper.getIncidents();
+        campus.setIncidentVertexList(new ArrayList<Vertex>());
+        for (Map.Entry<Integer, Vertex> e : campus.getVertexMap().entrySet()) {
+            e.getValue().setIncident(null);
+        }
+        if (incidents.size() > 0) {
+            for (Incident i : incidents) {
+                campus.getIncidentVertexList().add(campus.getVertexMap().get(i.getVertexId()));
+                campus.getVertexMap().get(i.getVertexId()).setIncident(i);
+            }
+        }
+        canvas.postInvalidate();
     }
 }

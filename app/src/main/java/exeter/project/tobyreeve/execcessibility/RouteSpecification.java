@@ -76,6 +76,7 @@ public class RouteSpecification extends AppCompatActivity {
            @Override
            public void onClick(View v) {
                Intent returnIntent = new Intent();
+               returnIntent.putExtra("ORIGIN", "RouteSpecification");
                returnIntent.putExtra("SOURCE", source.getSelectedItem().toString());
                returnIntent.putExtra("DESTINATION", destination.getSelectedItem().toString());
                setResult(RESULT_OK, returnIntent);

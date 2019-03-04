@@ -16,6 +16,7 @@ public class Graph {
     private Map<Integer, Vertex> vertexMap;
     private List<Subedge> subedgeList;
     private List<Vertex> calculatedPathList;
+    private List<Vertex> incidentVertexList;
     private double minLongitude;
     private double maxLongitude;
     private double minLatitude;
@@ -65,6 +66,10 @@ public class Graph {
 
     public Vertex getDestination() {return destination;}
 
+    public void setIncidentVertexList(List<Vertex> incidentVertexList) {this.incidentVertexList = incidentVertexList;}
+
+    public List<Vertex> getIncidentVertexList() {return incidentVertexList;}
+
     public List<Subedge> getSubedgeList() {return subedgeList;}
 
     public Map<Integer, Vertex> getVertexMap() {
@@ -102,7 +107,10 @@ public class Graph {
         //Dist(source, destination) - Dist(source, genericVertex)
 
         int stairsPreference = userPreferences.get("AvoidStaircases");
+        int incidentsPreference = userPreferences.get("AvoidIncidents");
         int altitudePreference = userPreferences.get("DistanceOverAltitude");
+
+        //TODO incorporate incidents and incidentsPref
 
         //Calculate approximate distance between source and destination
         float[] sourceDestDistance = new float[1];
@@ -154,7 +162,7 @@ public class Graph {
 
                     //Approximate distance of current path from source to neighbour
                     float tentativeG;
-                    if (stairsPreference == 10 && s.isStairs()) {
+                    if ((stairsPreference == 10 && s.isStairs()) || (neighbour.getIncident() != null && incidentsPreference == 1) || (neighbour.getIncident() != null && neighbour.getIncident().getDescription().contains("Cannot pass"))) {
                         tentativeG = Float.MAX_VALUE;
                     } else {
                         tentativeG = (neighbourDistance[0] + (float) 0.5 * stairsPreference + (float) 0.5 * altitudePreference * elevationDifference) + currentVertex.getG();

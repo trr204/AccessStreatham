@@ -17,5 +17,10 @@
         android:title="Buildings"
         app:showAsAction="never"/>
 
+    <item
+        android:id="@+id/incidents"
+        android:title="Check for incidents"
+        app:showAsAction="never"/>
+
 
 </menu>

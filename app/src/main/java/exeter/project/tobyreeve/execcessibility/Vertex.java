@@ -10,6 +10,7 @@ public class Vertex implements Comparable<Vertex> {
     private float g; //Distance from source to this vertex
     private double x;
     private double y;
+    private Incident incident;
 
     public Vertex() {}
 
@@ -120,4 +121,8 @@ public class Vertex implements Comparable<Vertex> {
     public int getElevation() {return elevation;}
 
     public void setElevation(int elevation) {this.elevation = elevation;}
+
+    public Incident getIncident() {return incident;}
+
+    public void setIncident(Incident incident) {this.incident = incident;}
 }

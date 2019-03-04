@@ -37,30 +37,25 @@ public class MyCanvas extends WebView {
         if (campus != null) {
             paint.setStyle(Paint.Style.FILL);
             Log.d("CANVAS ONDRAW", "Start drawing start (v1) and end (v2) vertex for each edge");
+            paint.setColor(Color.RED);
+            if (campus.getIncidentVertexList() != null && campus.getIncidentVertexList().size() > 0) {
+                for (Vertex v : campus.getIncidentVertexList()) {
+                    canvas.drawCircle(scaleFactor * ((float) v.getX()), (float) scaleFactor * ((float) v.getY()), scaleFactor * 15, paint);
+                }
+            }
+            paint.setColor(Color.YELLOW);
             for (int i = 1; i < campus.getEdgeMap().size(); i++) {
                 Edge e = campus.getEdgeMap().get(i);
                 if (e != null) {
                     Vertex v1 = e.getVertexList().get(0);
                     Vertex v2 = e.getVertexList().get(e.getVertexList().size() - 1);
-                    if (v1.getElevation() <= 50) {
-                        paint.setColor(Color.YELLOW);
-                    } else if (v1.getElevation() >= 100) {
-                        paint.setColor(Color.RED);
-                    } else {
-                        paint.setColor(Color.MAGENTA);
-                    }
                     if (scaleFactor *v1.getX() >= getScrollX() && scaleFactor *v1.getX() <= getScrollX()+screenWidth && scaleFactor *v1.getY() >= getScrollY() && scaleFactor *v1.getY() <= getScrollY()+screenHeight) {
+                        paint.setColor(Color.YELLOW);
                         canvas.drawCircle(scaleFactor * ((float) v1.getX()), (float) scaleFactor * ((float) v1.getY()), scaleFactor * 10, paint);
                     }
 
-                    if (v2.getElevation() <= 50) {
-                        paint.setColor(Color.YELLOW);
-                    } else if (v2.getElevation() >= 100) {
-                        paint.setColor(Color.RED);
-                    } else {
-                        paint.setColor(Color.MAGENTA);
-                    }
                     if (scaleFactor *v2.getX() >= getScrollX() && scaleFactor *v2.getX() <= getScrollX()+screenWidth && scaleFactor *v2.getY() >= getScrollY() && scaleFactor *v2.getY() <= getScrollY()+screenHeight) {
+                        paint.setColor(Color.YELLOW);
                         canvas.drawCircle((float) scaleFactor * ((float) v2.getX()), (float) scaleFactor * ((float) v2.getY()), scaleFactor * 10, paint);
                     }
                     float temp = paint.getStrokeWidth();

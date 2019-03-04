@@ -161,4 +161,21 @@
         app:rippleColor="@color/colorPrimaryDark"
         app:srcCompat="@drawable/baseline_save_white_36dp" />
 
+    <CheckBox
+        android:id="@+id/avoid_incidents_checkbox"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginBottom="8dp"
+        android:buttonTint="@color/seek_bar_progress"
+        android:fontFamily="casual"
+        android:text="Avoid all incidents?"
+        android:textColorLink="@color/seek_bar_progress"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/save_preferences_button"
+        app:layout_constraintStart_toEndOf="@+id/cancel_preferences_button"
+        app:layout_constraintTop_toBottomOf="@+id/distance_over_steep_seekbar" />
+
 </android.support.constraint.ConstraintLayout>
