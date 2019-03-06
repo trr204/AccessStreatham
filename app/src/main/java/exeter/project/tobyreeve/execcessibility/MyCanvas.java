@@ -5,6 +5,8 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.location.Location;
+import android.location.LocationManager;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
@@ -13,12 +15,18 @@ import android.webkit.WebView;
 import android.widget.Button;
 import android.widget.Toast;
 
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.tasks.OnSuccessListener;
+
 public class MyCanvas extends WebView {
     Paint paint;
     Graph campus;
     float initialScaleFactor;
     int screenHeight;
     int screenWidth;
+    int canvasHeight;
+    int canvasWidth;
     private long startClickTime;
     MainActivity mainActivity;
 
@@ -29,12 +37,16 @@ public class MyCanvas extends WebView {
     }
 
     @Override
-    protected void onDraw(Canvas canvas) {
+    protected void onDraw(final Canvas canvas) {
         super.onDraw(canvas);
-        float scaleFactor = getScale()/initialScaleFactor;
+        final float scaleFactor = getScale()/initialScaleFactor;
         //TODO Consider only drawing stuff that would be visible onscreen
         Log.d("CANVAS ONDRAW", "Current scale: " + String.valueOf(getScale()) + ", Current scale factor: " + String.valueOf(scaleFactor) + ", Current ScrollX value: " + String.valueOf(getScrollX()) + ", Current ScrollY value:" + String.valueOf(getScrollY()));
         if (campus != null) {
+            if (campus.getUserLocationX() != 0 && campus.getUserLocationY() != 0) {
+                paint.setColor(Color.rgb(95, 12, 140));
+                canvas.drawCircle((float) campus.getUserLocationX(), (float) campus.getUserLocationY(), 20, paint);
+            }
             paint.setStyle(Paint.Style.FILL);
             Log.d("CANVAS ONDRAW", "Start drawing start (v1) and end (v2) vertex for each edge");
             paint.setColor(Color.RED);
@@ -118,6 +130,14 @@ public class MyCanvas extends WebView {
 
     public void setScreenWidth(int screenWidth) {
         this.screenWidth = screenWidth;
+    }
+
+    public void setCanvasHeight(int canvasHeight) {
+        this.canvasHeight = canvasHeight;
+    }
+
+    public void setCanvasWidth(int canvasWidth) {
+        this.canvasWidth = canvasWidth;
     }
 
     public float getInitialScaleFactor() {return initialScaleFactor;}

@@ -4,7 +4,9 @@ import android.app.AlertDialog;
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.graphics.drawable.Drawable;
+import android.location.Location;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
@@ -24,6 +26,12 @@ import com.android.volley.Response;
 import com.android.volley.TimeoutError;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationCallback;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationResult;
+import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.tasks.OnSuccessListener;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -35,7 +43,11 @@ import java.util.List;
 import java.util.Map;
 
 public class MainActivity extends AppCompatActivity {
+    FusedLocationProviderClient fusedLocationClient;
+    LocationRequest locRequest;
+    LocationCallback locCallback;
     DatabaseHelper helper;
+    boolean requestingLocationUpdates;
     Graph campus;
     MyCanvas canvas;
     float canvasWidth;
@@ -112,6 +124,24 @@ public class MainActivity extends AppCompatActivity {
             }
         });
         Log.d("CANVAS DIMENS", "Canvas height: " + String.valueOf(canvasHeight) + ", Canvas width: " + String.valueOf(canvasWidth));
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
+        locRequest = LocationRequest.create();
+        locRequest.setInterval(20000);
+        locRequest.setFastestInterval(10000);
+        locRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+        locCallback = new LocationCallback() {
+            @Override
+            public void onLocationResult(LocationResult locationResult) {
+                if (locationResult == null) {
+                    return;
+                }
+                if (campus != null) {
+                    campus.setUserLocationY(((1-(locationResult.getLocations().get(0).getLatitude() - minLatitude)/(maxLatitude - minLatitude)) * canvasHeight));
+                    campus.setUserLocationX(((locationResult.getLocations().get(0).getLongitude() - minLongitude)/(maxLongitude - minLongitude))*canvasWidth);
+                }
+            };
+        };
+        startLocationUpdates();
     }
 
     @Override
@@ -434,5 +464,33 @@ public class MainActivity extends AppCompatActivity {
             }
         }
         canvas.postInvalidate();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (requestingLocationUpdates) {
+            startLocationUpdates();
+        }
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        stopLocationUpdates();
+    }
+
+    private void stopLocationUpdates() {
+        fusedLocationClient.removeLocationUpdates(locCallback);
+    }
+
+    private void startLocationUpdates() {
+        try {
+            fusedLocationClient.requestLocationUpdates(locRequest,
+                    locCallback,
+                    null /* Looper */);
+        } catch (SecurityException e) {
+            e.printStackTrace();
+        }
     }
 }

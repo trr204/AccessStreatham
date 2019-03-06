@@ -21,6 +21,8 @@ public class Graph {
     private double maxLongitude;
     private double minLatitude;
     private double maxLatitude;
+    private double userLocationX;
+    private double userLocationY;
     private Vertex source;
     private Vertex destination;
 
@@ -201,4 +203,19 @@ public class Graph {
         return true;
     }
 
+    public double getUserLocationX() {
+        return userLocationX;
+    }
+
+    public void setUserLocationX(double userLocationX) {
+        this.userLocationX = userLocationX;
+    }
+
+    public double getUserLocationY() {
+        return userLocationY;
+    }
+
+    public void setUserLocationY(double userLocationY) {
+        this.userLocationY = userLocationY;
+    }
 }
