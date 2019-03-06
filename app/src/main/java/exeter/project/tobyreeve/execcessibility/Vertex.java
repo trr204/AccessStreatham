@@ -10,22 +10,28 @@ public class Vertex implements Comparable<Vertex> {
     private float g; //Distance from source to this vertex
     private double x;
     private double y;
+    private String label;
     private Incident incident;
 
     public Vertex() {}
 
-    public Vertex(int id, long osmID, double latitude, double longitude, int elevation) {
+    public Vertex(int id, long osmID, double latitude, double longitude, int elevation, String label) {
         this.id = id;
         this.osmID = osmID;
         this.latitude = latitude;
         this.longitude = longitude;
         this.elevation = elevation;
+        this.label = label;
         this.g = Float.MAX_VALUE;
     }
 
     public int compareTo(Vertex otherVertex) {
         return this.getId() - otherVertex.getId();
     }
+
+    public void setLabel(String label) {this.label = label;}
+
+    public String getLabel() {return label;}
 
     public int getId() {
         return id;

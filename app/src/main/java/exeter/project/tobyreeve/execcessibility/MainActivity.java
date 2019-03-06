@@ -158,7 +158,7 @@ public class MainActivity extends AppCompatActivity {
 
         for (int i = 0; i < vCursor.getCount(); i++) {
             while(vCursor.moveToNext()) {
-                vertexList.add(new Vertex(vCursor.getInt(0), vCursor.getLong(1), vCursor.getFloat(2), vCursor.getFloat(3), vCursor.getInt(4)));
+                vertexList.add(new Vertex(vCursor.getInt(0), vCursor.getLong(1), vCursor.getFloat(2), vCursor.getFloat(3), vCursor.getInt(4), vCursor.getString(8)));
 
             }
         }

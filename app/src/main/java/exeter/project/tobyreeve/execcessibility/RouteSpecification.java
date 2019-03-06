@@ -37,26 +37,66 @@ public class RouteSpecification extends AppCompatActivity {
         Collections.sort(buildings);
         source.setAdapter(new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, buildings));
         destination.setAdapter(new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, buildings));*/
-        Cursor vCursor = helper.getVertexData();
-        List<String> vertices = new ArrayList<String>();
+        Cursor vCursor = helper.getVertexLabelData();
+        List<String> sourceVertexLabels = new ArrayList<String>();
+        List<Integer> sourceVertexIds = new ArrayList<Integer>();
+        List<String> destinationVertexLabels = new ArrayList<String>();
+        List<Integer> destinationVertexIds = new ArrayList<Integer>();
         for (int i = 0; i < vCursor.getCount(); i++) {
             while (vCursor.moveToNext()) {
-                vertices.add(String.valueOf(vCursor.getInt(0)));
+                sourceVertexIds.add(vCursor.getInt(0));
+                sourceVertexLabels.add(String.valueOf(vCursor.getString(8)));
+                destinationVertexIds.add(vCursor.getInt(0));
+                destinationVertexLabels.add(String.valueOf(vCursor.getString(8)));
             }
         }
+        int customSourceId = getIntent().getIntExtra("Source", 0);
+        int customDestinationId = getIntent().getIntExtra("Destination", 0);
+        int sourcePos = 0;
+        int destinationPos = 0;
+        if (customSourceId != 0) {
+            boolean exists = false;
+            int pos = 0;
+            for (int i : sourceVertexIds) {
+                if (i == customSourceId) {
+                    exists = true;
+                } else if (!exists) {
+                    pos++;
+                }
+            }
+            if (exists) {
+                sourcePos = pos;
+            } else {
+                sourceVertexIds.add(customSourceId);
+                sourcePos = sourceVertexIds.size()-1;
+                sourceVertexLabels.add("User-selected source");
+            }
+        }
+        if (customDestinationId != 0) {
+            boolean exists = false;
+            int pos = 0;
+            for (int i : destinationVertexIds) {
+                if (i == customDestinationId) {
+                    exists = true;
+                } else if (!exists) {
+                    pos++;
+                }
+            }
+            if (exists) {
+                destinationPos = pos;
+            } else {
+                destinationVertexIds.add(customDestinationId);
+                destinationPos = destinationVertexIds.size()-1;
+                destinationVertexLabels.add("User-selected destination");
+            }
+        }
+        final List<Integer> sourceVertexIdsFinal = sourceVertexIds;
+        final List<Integer> destinationVertexIdsFinal = destinationVertexIds;
         //TODO Persist source and destination for easy recalculation?
-        source.setAdapter(new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, vertices));
-        destination.setAdapter(new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, vertices));
+        source.setAdapter(new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, sourceVertexLabels));
+        destination.setAdapter(new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, destinationVertexLabels));
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        int sourcePos = getIntent().getIntExtra("Source", 0);
-        int destinationPos = getIntent().getIntExtra("Destination", 0);
-        if (sourcePos != 0) {
-            sourcePos -= 1;
-        }
-        if (destinationPos != 0) {
-            destinationPos -= 1;
-        }
         source.setSelection(sourcePos);
         destination.setSelection(destinationPos);
 
@@ -77,8 +117,8 @@ public class RouteSpecification extends AppCompatActivity {
            public void onClick(View v) {
                Intent returnIntent = new Intent();
                returnIntent.putExtra("ORIGIN", "RouteSpecification");
-               returnIntent.putExtra("SOURCE", source.getSelectedItem().toString());
-               returnIntent.putExtra("DESTINATION", destination.getSelectedItem().toString());
+               returnIntent.putExtra("SOURCE", sourceVertexIdsFinal.get(source.getSelectedItemPosition()).toString());
+               returnIntent.putExtra("DESTINATION", destinationVertexIdsFinal.get(destination.getSelectedItemPosition()).toString());
                setResult(RESULT_OK, returnIntent);
                finish();
            }

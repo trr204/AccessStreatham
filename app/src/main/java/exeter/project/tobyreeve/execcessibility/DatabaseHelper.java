@@ -30,10 +30,11 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public static final String VERTEX_TABLE_COLUMN_TWO = "OSMID";
     public static final String VERTEX_TABLE_COLUMN_THREE = "Latitude";
     public static final String VERTEX_TABLE_COLUMN_FOUR = "Longitude";
-    public static final String VERTEX_TABLE_COLUMN_FIVE = "Elevation";;
+    public static final String VERTEX_TABLE_COLUMN_FIVE = "Elevation";
     public static final String VERTEX_TABLE_COLUMN_SIX = "IncidentDescription";
     public static final String VERTEX_TABLE_COLUMN_SEVEN = "IncidentReportedAtTime";
     public static final String VERTEX_TABLE_COLUMN_EIGHT = "IncidentId";
+    public static final String VERTEX_TABLE_COLUMN_NINE = "Label";
     public static final String EDGE_TABLE_NAME = "Edge";
     public static final String EDGE_TABLE_COLUMN_ONE = "ID";
     public static final String EDGE_TABLE_COLUMN_TWO = "OSMID";
@@ -52,7 +53,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public static final String DATABASE_VERSION_TABLE_COLUMN_ONE = "VersionNum";
 
     public DatabaseHelper(Context context) {
-        super(context, DATABASE_NAME, null, 40);
+        super(context, DATABASE_NAME, null, 41);
     }
 
     @Override
@@ -86,7 +87,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 VERTEX_TABLE_COLUMN_FIVE + " REAL," + //ELEVATION
                 VERTEX_TABLE_COLUMN_SIX + " REAL," + //INCIDENT ID
                 VERTEX_TABLE_COLUMN_SEVEN + " REAL," + //INCIDENT DESCRIPTION
-                VERTEX_TABLE_COLUMN_EIGHT + " REAL)"; //INCIDENT REPORTED AT TIME
+                VERTEX_TABLE_COLUMN_EIGHT + " REAL," + //INCIDENT REPORTED AT TIME
+                VERTEX_TABLE_COLUMN_NINE + " TEXT)"; //LABEL
         db.execSQL(sql);
         Log.d("DATABASE CREATE", "Create Edge table");
         sql = "CREATE TABLE " + EDGE_TABLE_NAME + " (" +
@@ -200,11 +202,41 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        /*db.execSQL("DELETE FROM " + DATABASE_VERSION_TABLE_NAME);
+        String sql = "ALTER TABLE " + VERTEX_TABLE_NAME + " ADD COLUMN " + VERTEX_TABLE_COLUMN_NINE + " TEXT";
+        db.execSQL(sql);
+        sql = "UPDATE " + VERTEX_TABLE_NAME + " SET " + VERTEX_TABLE_COLUMN_NINE + " = 'Laver (Main Entrance)' WHERE " + VERTEX_TABLE_COLUMN_TWO + " = '210549161'";
+        db.execSQL(sql);
+        sql = "UPDATE " + VERTEX_TABLE_NAME + " SET " + VERTEX_TABLE_COLUMN_NINE + " = 'Athletics Union' WHERE " + VERTEX_TABLE_COLUMN_TWO + " = '210551128'";
+        db.execSQL(sql);
+        sql = "UPDATE " + VERTEX_TABLE_NAME + " SET " + VERTEX_TABLE_COLUMN_NINE + " = 'Grove Diner' WHERE " + VERTEX_TABLE_COLUMN_TWO + " = '299833700'";
+        db.execSQL(sql);
+        sql = "UPDATE " + VERTEX_TABLE_NAME + " SET " + VERTEX_TABLE_COLUMN_NINE + " = 'Amory (Geography Entrance)' WHERE " + VERTEX_TABLE_COLUMN_TWO + " = '299835446'";
+        db.execSQL(sql);
+        sql = "UPDATE " + VERTEX_TABLE_NAME + " SET " + VERTEX_TABLE_COLUMN_NINE + " = 'Amory (Main Entrance)' WHERE " + VERTEX_TABLE_COLUMN_TWO + " = '299836559'";
+        db.execSQL(sql);
+        sql = "UPDATE " + VERTEX_TABLE_NAME + " SET " + VERTEX_TABLE_COLUMN_NINE + " = 'Newman Lecture Theatres' WHERE " + VERTEX_TABLE_COLUMN_TWO + " = '299842953'";
+        db.execSQL(sql);
+        sql = "UPDATE " + VERTEX_TABLE_NAME + " SET " + VERTEX_TABLE_COLUMN_NINE + " = 'Lemon Grove' WHERE " + VERTEX_TABLE_COLUMN_TWO + " = '299843628'";
+        db.execSQL(sql);
+        sql = "UPDATE " + VERTEX_TABLE_NAME + " SET " + VERTEX_TABLE_COLUMN_NINE + " = 'Geoffrey Pope (Biosciences)' WHERE " + VERTEX_TABLE_COLUMN_TWO + " = '301171749'";
+        db.execSQL(sql);
+        sql = "UPDATE " + VERTEX_TABLE_NAME + " SET " + VERTEX_TABLE_COLUMN_NINE + " = 'Harrison (Accessible Entrance)' WHERE " + VERTEX_TABLE_COLUMN_TWO + " = '306493110'";
+        db.execSQL(sql);
+        sql = "UPDATE " + VERTEX_TABLE_NAME + " SET " + VERTEX_TABLE_COLUMN_NINE + " = 'Streatham Court' WHERE " + VERTEX_TABLE_COLUMN_TWO + " = '1853359433'";
+        db.execSQL(sql);
+        sql = "UPDATE " + VERTEX_TABLE_NAME + " SET " + VERTEX_TABLE_COLUMN_NINE + " = 'INTO Building (Main Entrance)' WHERE " + VERTEX_TABLE_COLUMN_TWO + " = '1853380596'";
+        db.execSQL(sql);
+        sql = "UPDATE " + VERTEX_TABLE_NAME + " SET " + VERTEX_TABLE_COLUMN_NINE + " = 'Forum (South end of The Street)' WHERE " + VERTEX_TABLE_COLUMN_TWO + " = '1853380690'";
+        db.execSQL(sql);
+        sql = "UPDATE " + VERTEX_TABLE_NAME + " SET " + VERTEX_TABLE_COLUMN_NINE + " = 'Forum (North end of The Street)' WHERE " + VERTEX_TABLE_COLUMN_TWO + " = '2857941399'";
+        db.execSQL(sql);
+        sql = "UPDATE " + VERTEX_TABLE_NAME + " SET " + VERTEX_TABLE_COLUMN_NINE + " = 'Harrison (Main Entrance)' WHERE " + VERTEX_TABLE_COLUMN_TWO + " = '4432912559'";
+        db.execSQL(sql);
+        sql = "UPDATE " + VERTEX_TABLE_NAME + " SET " + VERTEX_TABLE_COLUMN_NINE + " = 'Queens Building (Main Entrance)' WHERE " + VERTEX_TABLE_COLUMN_TWO + " = '4823218155'";
+        db.execSQL(sql);
+        sql = "UPDATE " + VERTEX_TABLE_NAME + " SET " + VERTEX_TABLE_COLUMN_NINE + " = 'Student Health Centre' WHERE " + VERTEX_TABLE_COLUMN_TWO + " = '4838651518'";
+        db.execSQL(sql);
 
-        populateVersionNum(db, 6);*/
-
-        populateUserPreferencesData(db, "AvoidIncidents", 0);
         /*populateVertexData(db,1,"59817503","50.73196850","-3.53817230",45);
         populateVertexData(db,2,"210545943","50.73735630","-3.53693080",96);
         populateVertexData(db,3,"210545945","50.73630680","-3.53660250",96);
@@ -2457,7 +2489,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             Log.d("DB VERSION UPDATE", "Start inserting new Vertex data");
             for (int i = 0; i < vertexArray.length(); i++) {
                 JSONObject v = vertexArray.getJSONObject(i);
-                boolean temp = populateVertexData(db, v.getInt("VertexId"), v.getString("OsmId"), v.getString("Latitude"), v.getString("Longitude"), v.getInt("Elevation"));
+                boolean temp = populateVertexData(db, v.getInt("VertexId"), v.getString("OsmId"), v.getString("Latitude"), v.getString("Longitude"), v.getInt("Elevation"), v.getString("Label"));
                 if (!temp) {
                     successful = false;
                 }
@@ -2526,13 +2558,14 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return (result != -1);
     }
 
-    public boolean populateVertexData(SQLiteDatabase db, int id, String osmID, String latitude, String longitude, int elevation) {
+    public boolean populateVertexData(SQLiteDatabase db, int id, String osmID, String latitude, String longitude, int elevation, String label) {
         ContentValues contentValues = new ContentValues();
         contentValues.put(VERTEX_TABLE_COLUMN_ONE, id);
         contentValues.put(VERTEX_TABLE_COLUMN_TWO, osmID);
         contentValues.put(VERTEX_TABLE_COLUMN_THREE, latitude);
         contentValues.put(VERTEX_TABLE_COLUMN_FOUR, longitude);
         contentValues.put(VERTEX_TABLE_COLUMN_FIVE, elevation);
+        contentValues.put(VERTEX_TABLE_COLUMN_NINE, label);
         long result = db.insert(VERTEX_TABLE_NAME, null, contentValues);
         return (result != -1);
     }
@@ -2585,6 +2618,12 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public Cursor getVertexData() {
         SQLiteDatabase db = this.getWritableDatabase();
         Cursor res = db.rawQuery("SELECT * FROM " + VERTEX_TABLE_NAME, null);
+        return res;
+    }
+
+    public Cursor getVertexLabelData() {
+        SQLiteDatabase db = this.getWritableDatabase();
+        Cursor res = db.rawQuery("SELECT * FROM " + VERTEX_TABLE_NAME + " WHERE " + VERTEX_TABLE_COLUMN_NINE + " IS NOT NULL", null);
         return res;
     }
 

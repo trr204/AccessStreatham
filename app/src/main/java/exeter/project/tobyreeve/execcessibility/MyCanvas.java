@@ -136,7 +136,7 @@ public class MyCanvas extends WebView {
                     float downX = (event.getX()+getScrollX())/scaleFactor;
                     float downY = (event.getY()+getScrollY())/scaleFactor;
                     for (Vertex v : campus.getVertexMap().values()) {
-                        if (Math.pow((downX - v.getX()), 2) + Math.pow((downY - v.getY()), 2) < Math.pow(scaleFactor * 20, 2)) {
+                        if (Math.pow((downX - v.getX()), 2) + Math.pow((downY - v.getY()), 2) < Math.pow(scaleFactor * 40, 2)) {
                             mainActivity.showVertexDialog(v);
                         }
                     }

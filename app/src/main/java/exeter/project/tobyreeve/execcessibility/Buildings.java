@@ -23,7 +23,7 @@ public class Buildings extends AppCompatActivity {
         helper = new DatabaseHelper(this);
         helper.getReadableDatabase();
         Cursor cursor = helper.getBuildingNames();
-        ArrayList<String > buildings = new ArrayList<String>();
+        ArrayList<String> buildings = new ArrayList<String>();
         for (int i = 0; i < cursor.getCount(); i++) {
             while(cursor.moveToNext()) {
                 buildings.add(cursor.getString(0));
