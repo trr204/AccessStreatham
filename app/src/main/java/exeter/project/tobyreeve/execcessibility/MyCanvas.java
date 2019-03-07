@@ -45,7 +45,7 @@ public class MyCanvas extends WebView {
         if (campus != null) {
             if (campus.getUserLocationX() != 0 && campus.getUserLocationY() != 0) {
                 paint.setColor(Color.rgb(95, 12, 140));
-                canvas.drawCircle((float) campus.getUserLocationX(), (float) campus.getUserLocationY(), 20, paint);
+                canvas.drawCircle(scaleFactor*(float) campus.getUserLocationX(), scaleFactor*(float) campus.getUserLocationY(), scaleFactor*20, paint);
             }
             paint.setStyle(Paint.Style.FILL);
             Log.d("CANVAS ONDRAW", "Start drawing start (v1) and end (v2) vertex for each edge");
