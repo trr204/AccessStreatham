@@ -15,6 +15,8 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.webkit.WebView;
+import android.webkit.WebViewClient;
 import android.widget.Button;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
@@ -47,7 +49,7 @@ public class MainActivity extends AppCompatActivity {
     LocationRequest locRequest;
     LocationCallback locCallback;
     DatabaseHelper helper;
-    boolean requestingLocationUpdates;
+    boolean requestingLocationUpdates = true;
     Graph campus;
     MyCanvas canvas;
     float canvasWidth;
@@ -123,11 +125,19 @@ public class MainActivity extends AppCompatActivity {
                 clearRoute();
             }
         });
+        FloatingActionButton userLocationFab = findViewById(R.id.user_location_button);
+        userLocationFab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Log.d("USERLOCATION", "User location fab clicked!");
+                scrollToUserLocation();
+            }
+        });
         Log.d("CANVAS DIMENS", "Canvas height: " + String.valueOf(canvasHeight) + ", Canvas width: " + String.valueOf(canvasWidth));
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
         locRequest = LocationRequest.create();
-        locRequest.setInterval(20000);
-        locRequest.setFastestInterval(10000);
+        locRequest.setInterval(4000);
+        locRequest.setFastestInterval(2000);
         locRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
         locCallback = new LocationCallback() {
             @Override
@@ -138,9 +148,13 @@ public class MainActivity extends AppCompatActivity {
                 if (campus != null) {
                     campus.setUserLocationY(((1-(locationResult.getLocations().get(0).getLatitude() - minLatitude)/(maxLatitude - minLatitude)) * canvasHeight));
                     campus.setUserLocationX(((locationResult.getLocations().get(0).getLongitude() - minLongitude)/(maxLongitude - minLongitude))*canvasWidth);
+                    canvas.postInvalidate();
                 }
             };
         };
+
+        canvas.setInitialScale(50);
+        Log.d("COORDS_SCROLL", canvas.getScrollX() + ":" + canvas.getScrollY());
         startLocationUpdates();
     }
 
@@ -156,6 +170,10 @@ public class MainActivity extends AppCompatActivity {
             case R.id.about:
                 Intent intentAbout = new Intent(this, SimpleContentActivity.class).putExtra(SimpleContentActivity.EXTRA_FILE, "file:///android_asset/misc/about.html");
                 this.startActivity(intentAbout);
+                return true;
+            case R.id.help:
+                Intent intentHelp = new Intent(this, SimpleContentActivity.class).putExtra(SimpleContentActivity.EXTRA_FILE, "file:///android_asset/misc/help.html");
+                this.startActivity(intentHelp);
                 return true;
             case R.id.preferences:
                 Intent intentPreferences = new Intent(this, Preferences.class);
@@ -254,6 +272,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void clearRoute() {
+
         campus.setCalculatedPathList(new ArrayList<Vertex>());
         canvas.postInvalidate();
         campus.setSource(null);
@@ -311,7 +330,7 @@ public class MainActivity extends AppCompatActivity {
         Cursor versionCursor = helper.getVersionNum();
         versionCursor.moveToNext();
         final int currentClientVersion = versionCursor.getInt(0);
-        JsonObjectRequest jor = new JsonObjectRequest(Request.Method.GET, "http://192.168.0.25:3000/version", null, new Response.Listener<JSONObject>() {
+        JsonObjectRequest jor = new JsonObjectRequest(Request.Method.GET, "http://"+MyApp.serverIP+":3000/version", null, new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {
                 Log.d("Version HTTP RESP", response.toString());
@@ -349,7 +368,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void getUpdatedGraphData(final int newVersionNum, final DatabaseHelper helper) {
-        JsonObjectRequest jor = new JsonObjectRequest(Request.Method.GET, "http://192.168.0.25:3000/graphdata", null, new Response.Listener<JSONObject>() {
+        JsonObjectRequest jor = new JsonObjectRequest(Request.Method.GET, "http://"+MyApp.serverIP+":3000/graphdata", null, new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {
                 Log.d("GraphUpdate HTTP RESP", response.toString());
@@ -420,7 +439,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void getIncidents() {
-        JsonObjectRequest jor = new JsonObjectRequest(Request.Method.GET, "http://192.168.0.25:3000/incident/list", null, new Response.Listener<JSONObject>() {
+        JsonObjectRequest jor = new JsonObjectRequest(Request.Method.GET, "http://"+MyApp.serverIP+":3000/incident/list", null, new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {
                 Log.d("IncidentList HTTP RESP", response.toString());
@@ -435,7 +454,8 @@ public class MainActivity extends AppCompatActivity {
                 } else {
                     Log.e("IncidentList HTTP ERR", error.getMessage());
                 }
-                Toast.makeText(MyApp.get(), "Failed to retrieve incidents data", Toast.LENGTH_LONG).show();
+                Toast.makeText(MyApp.get(), "Cannot retrieve updated incidents data from server, please check the Internet connection.", Toast.LENGTH_LONG).show();
+                updateGraphWithIncidents();
             }
         }){
             @Override
@@ -492,5 +512,9 @@ public class MainActivity extends AppCompatActivity {
         } catch (SecurityException e) {
             e.printStackTrace();
         }
+    }
+
+    private void scrollToUserLocation() {
+        canvas.scrollToUserLocation();
     }
 }

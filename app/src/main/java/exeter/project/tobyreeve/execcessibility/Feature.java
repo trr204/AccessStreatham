@@ -4,6 +4,7 @@ import android.database.Cursor;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Html;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 public class Feature extends AppCompatActivity {
@@ -19,15 +20,24 @@ public class Feature extends AppCompatActivity {
         setTitle(buildingName);
         helper = new DatabaseHelper(this);
         helper.getReadableDatabase();
-        Cursor nameCursor = helper.getBuildingId(buildingName);
+        Cursor nameCursor = helper.getBuildingData(buildingName);
         nameCursor.moveToFirst();
         Cursor featureCursor = helper.getBuildingFeatureData(nameCursor.getInt(0));
-
-        TextView featureList = findViewById(R.id.textView);
-        featureList.setText(Html.fromHtml("Features: <br/>"));
+        ImageView buildingImage = findViewById(R.id.buildingImage);
+        if (buildingName.equals("Harrison")) {
+            buildingImage.setImageDrawable(getResources().getDrawable(R.drawable.harrison_building));
+        }
+        TextView buildingDescription = findViewById(R.id.buildingDescription);
+        buildingDescription.setText(Html.fromHtml("<b>Description</b>: "+nameCursor.getString(1)));
+        TextView featureList = findViewById(R.id.featureList);
+        featureList.setText(Html.fromHtml("<b>Features</b>: <br/>"));
         for (int i = 0; i < featureCursor.getCount(); i++) {
             while(featureCursor.moveToNext()) {
-                featureList.append(Html.fromHtml("&#8226; " + (featureCursor.getString(0)) + "<br/>"));
+                if (featureCursor.getString(1).equals("")) {
+                    featureList.append(Html.fromHtml("&#8226; " + (featureCursor.getString(0)) + "<br/>"));
+                } else {
+                    featureList.append(Html.fromHtml("&#8226; " + (featureCursor.getString(0)) + " - " + featureCursor.getString(1) + "<br/>"));
+                }
             }
         }
     }

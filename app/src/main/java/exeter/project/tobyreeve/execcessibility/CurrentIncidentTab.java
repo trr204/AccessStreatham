@@ -65,8 +65,8 @@ public class CurrentIncidentTab extends Fragment {
         return view;
     }
 
-    public void removeReport(int vertexId) {
-        JsonObjectRequest jor = new JsonObjectRequest(Request.Method.DELETE, "http://192.168.0.25:3000/incident/remove/"+String.valueOf(vertexId), null, new Response.Listener<JSONObject>() {
+    public void removeReport(final int vertexId) {
+        JsonObjectRequest jor = new JsonObjectRequest(Request.Method.DELETE, "http://"+MyApp.serverIP+":3000/incident/remove/"+String.valueOf(vertexId), null, new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {
                 Log.d("IncidntRemove HTTP RESP", response.toString());
@@ -84,7 +84,11 @@ public class CurrentIncidentTab extends Fragment {
                 } else {
                     Log.e("IncidntRemove HTTP ERR", error.getMessage());
                 }
-                Toast.makeText(MyApp.get(), "Failed to remove report.", Toast.LENGTH_LONG).show();
+                Intent returnIntent = new Intent();
+                returnIntent.putExtra("ORIGIN", "CurrentIncidentTab");
+                getActivity().setResult(RESULT_OK, returnIntent);
+                getActivity().finish();
+                Toast.makeText(MyApp.get(), "Report removed locally", Toast.LENGTH_LONG).show();
             }
         }){
             @Override
@@ -95,6 +99,7 @@ public class CurrentIncidentTab extends Fragment {
                 return headers;
             }
         };
+        helper.removeIncidentData(helper.getWritableDatabase(), vertexId);
         RequestQueueHandler.getInstance().addToRequestQueue(jor);
         Log.d("HTTP REQUEST", "IncidntRemove REQ SENT");
     }

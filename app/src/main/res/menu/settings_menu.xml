@@ -13,6 +13,11 @@
         app:showAsAction="never"/>
 
     <item
+        android:id="@+id/help"
+        android:title="User Guide"
+        app:showAsAction="never"/>
+
+    <item
         android:id="@+id/buildings"
         android:title="Buildings"
         app:showAsAction="never"/>

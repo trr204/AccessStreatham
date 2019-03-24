@@ -11,6 +11,7 @@ import android.widget.ListAdapter;
 import android.widget.ListView;
 
 import java.util.ArrayList;
+import java.util.Collections;
 
 public class Buildings extends AppCompatActivity {
     DatabaseHelper helper;
@@ -29,6 +30,7 @@ public class Buildings extends AppCompatActivity {
                 buildings.add(cursor.getString(0));
             }
         }
+        Collections.sort(buildings);
         ListAdapter buildingsAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, buildings);
 
         ListView buildingsListView = findViewById(R.id.buildingsListView);

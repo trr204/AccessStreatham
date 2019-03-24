@@ -15,6 +15,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.android.volley.AuthFailureError;
+import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.TimeoutError;
@@ -68,16 +69,16 @@ public class NewIncidentTab extends Fragment {
         return view;
     }
 
-    public void submitReport(int vertexId, String description) {
+    public void submitReport(final int vertexId, final String description) {
         JSONObject json = new JSONObject();
-        String timeStamp = new SimpleDateFormat("EEE, d MMM yyyy HH:mm").format(Calendar.getInstance().getTime());
+        final String timeStamp = new SimpleDateFormat("EEE, d MMM yyyy HH:mm").format(Calendar.getInstance().getTime());
 
         try {
             json = new JSONObject().put("vertexId", vertexId).put("incidentDescription", description).put("incidentReportTime", timeStamp);
         } catch (JSONException e) {
             e.printStackTrace();
         }
-        JsonObjectRequest jor = new JsonObjectRequest(Request.Method.POST, "http://192.168.0.25:3000/incident/report", json, new Response.Listener<JSONObject>() {
+        JsonObjectRequest jor = new JsonObjectRequest(Request.Method.POST, "http://"+MyApp.serverIP+":3000/incident/report", json, new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {
                 Log.d("IncidntReport HTTP RESP", response.toString());
@@ -95,7 +96,11 @@ public class NewIncidentTab extends Fragment {
                 } else {
                     Log.e("IncidntReport HTTP ERR", error.getMessage());
                 }
-                Toast.makeText(MyApp.get(), "Failed to submit report.", Toast.LENGTH_LONG).show();
+                Intent returnIntent = new Intent();
+                returnIntent.putExtra("ORIGIN", "NewIncidentTab");
+                getActivity().setResult(RESULT_OK, returnIntent);
+                getActivity().finish();
+                Toast.makeText(MyApp.get(), "Report submitted locally.", Toast.LENGTH_LONG).show();
             }
         }){
             @Override
@@ -106,6 +111,7 @@ public class NewIncidentTab extends Fragment {
                 return headers;
             }
         };
+        helper.populateIncidentData(helper.getWritableDatabase(), 9999, vertexId, description, timeStamp);
         RequestQueueHandler.getInstance().addToRequestQueue(jor);
         Log.d("HTTP REQUEST", "IncidntReport REQ SENT");
     }

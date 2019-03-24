@@ -20,7 +20,10 @@ import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.tasks.OnSuccessListener;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class RouteSpecification extends AppCompatActivity {
 
@@ -51,13 +54,21 @@ public class RouteSpecification extends AppCompatActivity {
         List<Integer> sourceVertexIds = new ArrayList<Integer>();
         List<String> destinationVertexLabels = new ArrayList<String>();
         List<Integer> destinationVertexIds = new ArrayList<Integer>();
+        Map<String, Integer> vertexMap = new HashMap<String, Integer>();
         for (int i = 0; i < vCursor.getCount(); i++) {
             while (vCursor.moveToNext()) {
-                sourceVertexIds.add(vCursor.getInt(0));
-                sourceVertexLabels.add(String.valueOf(vCursor.getString(8)));
-                destinationVertexIds.add(vCursor.getInt(0));
-                destinationVertexLabels.add(String.valueOf(vCursor.getString(8)));
+                vertexMap.put(vCursor.getString(8), vCursor.getInt(0));
             }
+        }
+        List<String> vertices = new ArrayList<>(vertexMap.keySet());
+        Collections.sort(vertices);
+
+        for (String entry : vertices) {
+            sourceVertexIds.add(vertexMap.get(entry));
+            sourceVertexLabels.add(entry);
+            destinationVertexIds.add(vertexMap.get(entry));
+            destinationVertexLabels.add(entry);
+
         }
         int customSourceId = getIntent().getIntExtra("Source", 0);
         int customDestinationId = getIntent().getIntExtra("Destination", 0);

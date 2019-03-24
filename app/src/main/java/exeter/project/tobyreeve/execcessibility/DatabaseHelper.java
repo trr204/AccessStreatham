@@ -53,7 +53,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public static final String DATABASE_VERSION_TABLE_COLUMN_ONE = "VersionNum";
 
     public DatabaseHelper(Context context) {
-        super(context, DATABASE_NAME, null, 41);
+        super(context, DATABASE_NAME, null, 45);
     }
 
     @Override
@@ -85,8 +85,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 VERTEX_TABLE_COLUMN_THREE + " REAL," + //LATITUDE
                 VERTEX_TABLE_COLUMN_FOUR + " REAL," + //LONGITUDE
                 VERTEX_TABLE_COLUMN_FIVE + " REAL," + //ELEVATION
-                VERTEX_TABLE_COLUMN_SIX + " REAL," + //INCIDENT ID
-                VERTEX_TABLE_COLUMN_SEVEN + " REAL," + //INCIDENT DESCRIPTION
+                VERTEX_TABLE_COLUMN_SIX + " INTEGER," + //INCIDENT ID
+                VERTEX_TABLE_COLUMN_SEVEN + " TEXT," + //INCIDENT DESCRIPTION
                 VERTEX_TABLE_COLUMN_EIGHT + " REAL," + //INCIDENT REPORTED AT TIME
                 VERTEX_TABLE_COLUMN_NINE + " TEXT)"; //LABEL
         db.execSQL(sql);
@@ -124,6 +124,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         populateUserPreferencesData(db, "AvoidIncidents", 0);
 
         Log.d("DATABASE CREATE", "Insert Building data");
+
         populateBuildingData(db, "Amory","");
         populateBuildingData(db, "Bill Douglas Cinema Museum","");
         populateBuildingData(db, "Building: One","");
@@ -140,7 +141,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         populateBuildingData(db, "Forum","");
         populateBuildingData(db, "Garden Hill House","Not visible on map (top right)");
         populateBuildingData(db, "Geoffrey Pope","");
-        populateBuildingData(db, "Harrison","");
+        populateBuildingData(db, "Harrison","Part of the CEMPS faculty, named after former Vice-Chancellor Sir David Harrison.");
         populateBuildingData(db, "Great Hall","");
         populateBuildingData(db, "Hatherly Labs","");
         populateBuildingData(db, "Henry Wellcome","");
@@ -188,55 +189,119 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         populateBuildingData(db, "XFi","");
         populateBuildingData(db, "Estate Service Centre","");
         populateBuildingData(db, "Duryard","");
-        populateBuildingData(db, "Newman Lecture Theatres","Same as Peter Chalk");
-
+        populateBuildingData(db, "Newman Lecture Theatres","Located inside the Peter Chalk Centre");
 
         Log.d("DATABASE CREATE", "Insert Feature data");
-        populateFeatureData(db, "Computer Science","", 1);
-        populateFeatureData(db, "Engineering","", 1);
-        populateFeatureData(db, "Mathematical Science","", 1);
-        populateFeatureData(db, "Geography","", 2);
-        populateFeatureData(db, "Student Services Centre","", 3);
-        populateFeatureData(db, "Costa Coffee","", 3);
+        populateFeatureData(db, "Computer Science"," Windows Lab, Linux Lab, Mac Lab", "Harrison");
+        populateFeatureData(db, "Engineering","", "Harrison");
+        populateFeatureData(db, "Mathematical Science","", "Harrison");
+        populateFeatureData(db, "Geography","", "Amory");
+        populateFeatureData(db, "Student Services Centre","", "Forum");
+        populateFeatureData(db, "Costa Coffee","", "Forum");
+        populateFeatureData(db, "Newman Red","Lecture Theatre", "Newman Lecture Theatres");
+        populateFeatureData(db, "Newman Blue","Lecture Theatre", "Newman Lecture Theatres");
+        populateFeatureData(db, "Newman Green","Lecture Theatre", "Newman Lecture Theatres");
+        populateFeatureData(db, "Newman Purple","Lecture Theatre", "Newman Lecture Theatres");
+        populateFeatureData(db, "Newman Collaborative","Lecture Theatre", "Newman Lecture Theatres");
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        String sql = "ALTER TABLE " + VERTEX_TABLE_NAME + " ADD COLUMN " + VERTEX_TABLE_COLUMN_NINE + " TEXT";
+        String sql = "DROP TABLE IF EXISTS " + FEATURE_TABLE_NAME;
         db.execSQL(sql);
-        sql = "UPDATE " + VERTEX_TABLE_NAME + " SET " + VERTEX_TABLE_COLUMN_NINE + " = 'Laver (Main Entrance)' WHERE " + VERTEX_TABLE_COLUMN_TWO + " = '210549161'";
+        sql = "DROP TABLE IF EXISTS " + BUILDING_TABLE_NAME;
         db.execSQL(sql);
-        sql = "UPDATE " + VERTEX_TABLE_NAME + " SET " + VERTEX_TABLE_COLUMN_NINE + " = 'Athletics Union' WHERE " + VERTEX_TABLE_COLUMN_TWO + " = '210551128'";
+        sql = "CREATE TABLE " + BUILDING_TABLE_NAME + " (" +
+                BUILDING_TABLE_COLUMN_ONE + " INTEGER PRIMARY KEY AUTOINCREMENT," + //ID
+                BUILDING_TABLE_COLUMN_TWO + " TEXT," + //NAME
+                BUILDING_TABLE_COLUMN_THREE + " TEXT)"; //DESCRIPTION
         db.execSQL(sql);
-        sql = "UPDATE " + VERTEX_TABLE_NAME + " SET " + VERTEX_TABLE_COLUMN_NINE + " = 'Grove Diner' WHERE " + VERTEX_TABLE_COLUMN_TWO + " = '299833700'";
-        db.execSQL(sql);
-        sql = "UPDATE " + VERTEX_TABLE_NAME + " SET " + VERTEX_TABLE_COLUMN_NINE + " = 'Amory (Geography Entrance)' WHERE " + VERTEX_TABLE_COLUMN_TWO + " = '299835446'";
-        db.execSQL(sql);
-        sql = "UPDATE " + VERTEX_TABLE_NAME + " SET " + VERTEX_TABLE_COLUMN_NINE + " = 'Amory (Main Entrance)' WHERE " + VERTEX_TABLE_COLUMN_TWO + " = '299836559'";
-        db.execSQL(sql);
-        sql = "UPDATE " + VERTEX_TABLE_NAME + " SET " + VERTEX_TABLE_COLUMN_NINE + " = 'Newman Lecture Theatres' WHERE " + VERTEX_TABLE_COLUMN_TWO + " = '299842953'";
-        db.execSQL(sql);
-        sql = "UPDATE " + VERTEX_TABLE_NAME + " SET " + VERTEX_TABLE_COLUMN_NINE + " = 'Lemon Grove' WHERE " + VERTEX_TABLE_COLUMN_TWO + " = '299843628'";
-        db.execSQL(sql);
-        sql = "UPDATE " + VERTEX_TABLE_NAME + " SET " + VERTEX_TABLE_COLUMN_NINE + " = 'Geoffrey Pope (Biosciences)' WHERE " + VERTEX_TABLE_COLUMN_TWO + " = '301171749'";
-        db.execSQL(sql);
-        sql = "UPDATE " + VERTEX_TABLE_NAME + " SET " + VERTEX_TABLE_COLUMN_NINE + " = 'Harrison (Accessible Entrance)' WHERE " + VERTEX_TABLE_COLUMN_TWO + " = '306493110'";
-        db.execSQL(sql);
-        sql = "UPDATE " + VERTEX_TABLE_NAME + " SET " + VERTEX_TABLE_COLUMN_NINE + " = 'Streatham Court' WHERE " + VERTEX_TABLE_COLUMN_TWO + " = '1853359433'";
-        db.execSQL(sql);
-        sql = "UPDATE " + VERTEX_TABLE_NAME + " SET " + VERTEX_TABLE_COLUMN_NINE + " = 'INTO Building (Main Entrance)' WHERE " + VERTEX_TABLE_COLUMN_TWO + " = '1853380596'";
-        db.execSQL(sql);
-        sql = "UPDATE " + VERTEX_TABLE_NAME + " SET " + VERTEX_TABLE_COLUMN_NINE + " = 'Forum (South end of The Street)' WHERE " + VERTEX_TABLE_COLUMN_TWO + " = '1853380690'";
-        db.execSQL(sql);
-        sql = "UPDATE " + VERTEX_TABLE_NAME + " SET " + VERTEX_TABLE_COLUMN_NINE + " = 'Forum (North end of The Street)' WHERE " + VERTEX_TABLE_COLUMN_TWO + " = '2857941399'";
-        db.execSQL(sql);
-        sql = "UPDATE " + VERTEX_TABLE_NAME + " SET " + VERTEX_TABLE_COLUMN_NINE + " = 'Harrison (Main Entrance)' WHERE " + VERTEX_TABLE_COLUMN_TWO + " = '4432912559'";
-        db.execSQL(sql);
-        sql = "UPDATE " + VERTEX_TABLE_NAME + " SET " + VERTEX_TABLE_COLUMN_NINE + " = 'Queens Building (Main Entrance)' WHERE " + VERTEX_TABLE_COLUMN_TWO + " = '4823218155'";
-        db.execSQL(sql);
-        sql = "UPDATE " + VERTEX_TABLE_NAME + " SET " + VERTEX_TABLE_COLUMN_NINE + " = 'Student Health Centre' WHERE " + VERTEX_TABLE_COLUMN_TWO + " = '4838651518'";
+        sql = "CREATE TABLE " + FEATURE_TABLE_NAME + " (" +
+                FEATURE_TABLE_COLUMN_ONE + " INTEGER PRIMARY KEY AUTOINCREMENT," + //ID
+                FEATURE_TABLE_COLUMN_TWO + " INTEGER," + //BUILDINGID
+                FEATURE_TABLE_COLUMN_THREE + " TEXT," + //NAME
+                FEATURE_TABLE_COLUMN_FOUR + " TEXT," + //DESCRIPTION
+                "FOREIGN KEY("+FEATURE_TABLE_COLUMN_TWO+") REFERENCES "+BUILDING_TABLE_NAME+"("+BUILDING_TABLE_COLUMN_ONE+"))";
         db.execSQL(sql);
 
+        populateBuildingData(db, "Amory","");
+        populateBuildingData(db, "Bill Douglas Cinema Museum","");
+        populateBuildingData(db, "Building: One","");
+        populateBuildingData(db, "Byrne House","");
+        populateBuildingData(db, "Birks Grange Vilage","");
+        populateBuildingData(db, "Alexander Building, Thornlea","Not visible on map (bottom left)");
+        populateBuildingData(db, "Clayden","");
+        populateBuildingData(db, "Clydesdale Court","");
+        populateBuildingData(db, "Clydesdale House","");
+        populateBuildingData(db, "Clydesdale Rise","");
+        populateBuildingData(db, "Cornwall House","");
+        populateBuildingData(db, "Devonshire House","");
+        populateBuildingData(db, "Family Centre","");
+        populateBuildingData(db, "Forum","");
+        populateBuildingData(db, "Garden Hill House","Not visible on map (top right)");
+        populateBuildingData(db, "Geoffrey Pope","");
+        populateBuildingData(db, "Harrison","Part of the CEMPS faculty, named after former Vice-Chancellor Sir David Harrison.");
+        populateBuildingData(db, "Great Hall","");
+        populateBuildingData(db, "Hatherly Labs","");
+        populateBuildingData(db, "Henry Wellcome","");
+        populateBuildingData(db, "Higher Hoopern Cottage","Not visible on map (top right)");
+        populateBuildingData(db, "Higher Hoopern Farm","Not visible on map (top right)");
+        populateBuildingData(db, "Holland Hall","");
+        populateBuildingData(db, "Holland Hall Studios","");
+        populateBuildingData(db, "Hope Hall","");
+        populateBuildingData(db, "Innovation Centre","");
+        populateBuildingData(db, "Innovation Centre Phase 2","");
+        populateBuildingData(db, "Institute of Arabic and Islamic Studies","");
+        populateBuildingData(db, "INTO International Study Centre","");
+        populateBuildingData(db, "Kay","");
+        populateBuildingData(db, "Knightley","");
+        populateBuildingData(db, "Lafrowda","");
+        populateBuildingData(db, "Lafrowda Cottage","");
+        populateBuildingData(db, "Lafrowda House","");
+        populateBuildingData(db, "Laver","");
+        populateBuildingData(db, "Lazenby","");
+        populateBuildingData(db, "Library","Same as Forum");
+        populateBuildingData(db, "Living Systems Institute","");
+        populateBuildingData(db, "Lopes Hall","");
+        populateBuildingData(db, "Mardon Hall","");
+        populateBuildingData(db, "Mary Harris Memorial Chapel","");
+        populateBuildingData(db, "Mood Disorders Centre","");
+        populateBuildingData(db, "Nash Grove","");
+        populateBuildingData(db, "Northcote House","");
+        populateBuildingData(db, "Northcott Theatre","");
+        populateBuildingData(db, "Old Library","");
+        populateBuildingData(db, "Pennsylvania Court","");
+        populateBuildingData(db, "Peter Chalk Centre","");
+        populateBuildingData(db, "Physics Tower","");
+        populateBuildingData(db, "Queens","");
+        populateBuildingData(db, "Ransom Pickard","");
+        populateBuildingData(db, "Reed Hall","");
+        populateBuildingData(db, "Roborough Studios","");
+        populateBuildingData(db, "Rowe House","");
+        populateBuildingData(db, "Sports Park","");
+        populateBuildingData(db, "St German's","");
+        populateBuildingData(db, "Streatham Court","");
+        populateBuildingData(db, "Streatham Farm","");
+        populateBuildingData(db, "Student Health Centre","");
+        populateBuildingData(db, "Washington Singer","");
+        populateBuildingData(db, "White House, Thronlea","Not visible on map (bottom left)");
+        populateBuildingData(db, "XFi","");
+        populateBuildingData(db, "Estate Service Centre","");
+        populateBuildingData(db, "Duryard","");
+        populateBuildingData(db, "Newman Lecture Theatres","Located inside the Peter Chalk Centre");
+
+        Log.d("DATABASE CREATE", "Insert Feature data");
+        populateFeatureData(db, "Computer Science"," Windows Lab, Linux Lab, Mac Lab", "Harrison");
+        populateFeatureData(db, "Engineering","", "Harrison");
+        populateFeatureData(db, "Mathematical Science","", "Harrison");
+        populateFeatureData(db, "Geography","", "Amory");
+        populateFeatureData(db, "Student Services Centre","", "Forum");
+        populateFeatureData(db, "Costa Coffee","", "Forum");
+        populateFeatureData(db, "Newman Red","Lecture Theatre", "Newman Lecture Theatres");
+        populateFeatureData(db, "Newman Blue","Lecture Theatre", "Newman Lecture Theatres");
+        populateFeatureData(db, "Newman Green","Lecture Theatre", "Newman Lecture Theatres");
+        populateFeatureData(db, "Newman Purple","Lecture Theatre", "Newman Lecture Theatres");
+        populateFeatureData(db, "Newman Collaborative","Lecture Theatre", "Newman Lecture Theatres");
         /*populateVertexData(db,1,"59817503","50.73196850","-3.53817230",45);
         populateVertexData(db,2,"210545943","50.73735630","-3.53693080",96);
         populateVertexData(db,3,"210545945","50.73630680","-3.53660250",96);
@@ -2549,13 +2614,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return (result != -1);
     }
 
-    public boolean populateFeatureData(SQLiteDatabase db, String name, String description, int buildingId) {
-        ContentValues contentValues = new ContentValues();
-        contentValues.put(FEATURE_TABLE_COLUMN_TWO, buildingId);
-        contentValues.put(FEATURE_TABLE_COLUMN_THREE, name);
-        contentValues.put(FEATURE_TABLE_COLUMN_FOUR, description);
-        long result = db.insert(FEATURE_TABLE_NAME, null, contentValues);
-        return (result != -1);
+    public void populateFeatureData(SQLiteDatabase db, String name, String description, String buildingName) {
+        String sql = "INSERT INTO " + FEATURE_TABLE_NAME + " (" + FEATURE_TABLE_COLUMN_TWO + "," + FEATURE_TABLE_COLUMN_THREE + "," + FEATURE_TABLE_COLUMN_FOUR + ") VALUES (" +
+                "(SELECT " + BUILDING_TABLE_COLUMN_ONE + " FROM " + BUILDING_TABLE_NAME + " WHERE " + BUILDING_TABLE_COLUMN_TWO + " = '" + buildingName + "'), '" + name + "', '" + description + "')";
+        db.execSQL(sql);
     }
 
     public boolean populateVertexData(SQLiteDatabase db, int id, String osmID, String latitude, String longitude, int elevation, String label) {
@@ -2597,9 +2659,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return res;
     }
 
-    public Cursor getBuildingId(String buildingName) {
+    public Cursor getBuildingData(String buildingName) {
         SQLiteDatabase db = this.getWritableDatabase();
-        Cursor res = db.rawQuery("select " + BUILDING_TABLE_COLUMN_ONE + " from " + BUILDING_TABLE_NAME + " WHERE " + BUILDING_TABLE_COLUMN_TWO + " = '" + buildingName + "'", null);
+        Cursor res = db.rawQuery("select " + BUILDING_TABLE_COLUMN_ONE + "," + BUILDING_TABLE_COLUMN_THREE + " from " + BUILDING_TABLE_NAME + " WHERE " + BUILDING_TABLE_COLUMN_TWO + " = '" + buildingName + "'", null);
         return res;
     }
 
@@ -2720,6 +2782,12 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             }
         }
         return incidents;
+    }
+
+    public void removeIncidentData(SQLiteDatabase db, int vertexId) {
+        String sql = "UPDATE " + VERTEX_TABLE_NAME + " SET " + VERTEX_TABLE_COLUMN_EIGHT + " = 0," +
+                VERTEX_TABLE_COLUMN_SIX + " = ''," + VERTEX_TABLE_COLUMN_SEVEN + " = '' WHERE " + VERTEX_TABLE_COLUMN_ONE + " = " + String.valueOf(vertexId);
+        db.execSQL(sql);
     }
 
 

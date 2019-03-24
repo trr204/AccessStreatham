@@ -29,8 +29,8 @@ public class SimpleContentFragment extends WebViewFragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View result = super.onCreateView(inflater, container, savedInstanceState);
         getWebView().getSettings().setJavaScriptEnabled(true);
-        getWebView().getSettings().setSupportZoom(true);
-        getWebView().getSettings().setBuiltInZoomControls(true);
+        getWebView().getSettings().setSupportZoom(false);
+        getWebView().getSettings().setBuiltInZoomControls(false);
         getWebView().loadUrl(getPage());
         return result;
     }

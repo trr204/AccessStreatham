@@ -26,7 +26,9 @@ public class MyCanvas extends WebView {
     int screenHeight;
     int screenWidth;
     int canvasHeight;
+    boolean onLoad;
     int canvasWidth;
+    int count = 0;
     private long startClickTime;
     MainActivity mainActivity;
 
@@ -43,19 +45,22 @@ public class MyCanvas extends WebView {
         //TODO Consider only drawing stuff that would be visible onscreen
         Log.d("CANVAS ONDRAW", "Current scale: " + String.valueOf(getScale()) + ", Current scale factor: " + String.valueOf(scaleFactor) + ", Current ScrollX value: " + String.valueOf(getScrollX()) + ", Current ScrollY value:" + String.valueOf(getScrollY()));
         if (campus != null) {
-            if (campus.getUserLocationX() != 0 && campus.getUserLocationY() != 0) {
+            if (campus.getUserLocationX() != 0 && campus.getUserLocationY() != 0 && scaleFactor * campus.getUserLocationX() >= getScrollX() && scaleFactor * campus.getUserLocationX() <= getScrollX() + screenWidth && scaleFactor * campus.getUserLocationY() >= getScrollY() && scaleFactor * campus.getUserLocationY() <= getScrollY() + screenHeight) {
+
                 paint.setColor(Color.rgb(95, 12, 140));
-                canvas.drawCircle(scaleFactor*(float) campus.getUserLocationX(), scaleFactor*(float) campus.getUserLocationY(), scaleFactor*20, paint);
+                canvas.drawRect(scaleFactor * (float) (campus.getUserLocationX() - 20), scaleFactor * (float) (campus.getUserLocationY() - 20), scaleFactor * (float) (campus.getUserLocationX() + 20), scaleFactor * (float) (campus.getUserLocationY() + 20), paint);
             }
             paint.setStyle(Paint.Style.FILL);
             Log.d("CANVAS ONDRAW", "Start drawing start (v1) and end (v2) vertex for each edge");
             paint.setColor(Color.RED);
             if (campus.getIncidentVertexList() != null && campus.getIncidentVertexList().size() > 0) {
                 for (Vertex v : campus.getIncidentVertexList()) {
-                    canvas.drawCircle(scaleFactor * ((float) v.getX()), (float) scaleFactor * ((float) v.getY()), scaleFactor * 15, paint);
+                    if (scaleFactor * v.getX() >= getScrollX() && scaleFactor * v.getX() <= getScrollX() + screenWidth && scaleFactor * v.getY() >= getScrollY() && scaleFactor * v.getY() <= getScrollY() + screenHeight) {
+                        canvas.drawCircle(scaleFactor * ((float) v.getX()), (float) scaleFactor * ((float) v.getY()), scaleFactor * 15, paint);
+                    }
                 }
             }
-            paint.setColor(Color.YELLOW);
+            /*paint.setColor(Color.YELLOW);
             for (int i = 1; i < campus.getEdgeMap().size(); i++) {
                 Edge e = campus.getEdgeMap().get(i);
                 if (e != null) {
@@ -80,24 +85,24 @@ public class MyCanvas extends WebView {
                     }
                     paint.setStrokeWidth(temp);
                 }
-            }
+            }*/
 
             Log.d("CANVAS ONDRAW", "Check if calculated path needs to be drawn");
             if (campus.getCalculatedPathList().size() > 1) {
                 Log.d("PLANROUTE", "Start drawing calculated route vertices");
                 paint.setColor(Color.BLUE);
                 for (Vertex v : campus.getCalculatedPathList()) {
-                    if (scaleFactor *v.getX() >= getScrollX() && scaleFactor *v.getX() <= getScrollX() + screenWidth && scaleFactor *v.getY() >= getScrollY() && scaleFactor *v.getY() <= getScrollY() + screenHeight) {
+                    if (scaleFactor * v.getX() >= getScrollX() && scaleFactor * v.getX() <= getScrollX() + screenWidth && scaleFactor * v.getY() >= getScrollY() && scaleFactor * v.getY() <= getScrollY() + screenHeight) {
                         canvas.drawCircle((float) scaleFactor * ((float) v.getX()), (float) scaleFactor * ((float) v.getY()), scaleFactor * 15, paint);
                     }
                 }
                 Log.d("PLANROUTE", "Start drawing calculated route edges between vertices");
                 paint.setColor(Color.GREEN);
-                paint.setStrokeWidth(scaleFactor*10);
+                paint.setStrokeWidth(scaleFactor * 10);
                 for (int i = 1; i < campus.getCalculatedPathList().size(); i++) {
                     Vertex v1 = campus.getCalculatedPathList().get(i - 1);
                     Vertex v2 = campus.getCalculatedPathList().get(i);
-                    if ((scaleFactor *v1.getX() >= getScrollX() && scaleFactor *v1.getX() <= getScrollX()+screenWidth && scaleFactor *v1.getY() >= getScrollY() && scaleFactor *v1.getY() <= getScrollY()+screenHeight) || (scaleFactor *v2.getX() >= getScrollX() && scaleFactor *v2.getX() <= getScrollX() + screenWidth && scaleFactor *v2.getY() >= getScrollY() && scaleFactor *v2.getY() <= getScrollY() + screenHeight)) {
+                    if ((scaleFactor * v1.getX() >= getScrollX() && scaleFactor * v1.getX() <= getScrollX() + screenWidth && scaleFactor * v1.getY() >= getScrollY() && scaleFactor * v1.getY() <= getScrollY() + screenHeight) || (scaleFactor * v2.getX() >= getScrollX() && scaleFactor * v2.getX() <= getScrollX() + screenWidth && scaleFactor * v2.getY() >= getScrollY() && scaleFactor * v2.getY() <= getScrollY() + screenHeight)) {
                         canvas.drawLine((float) scaleFactor * ((float) v1.getX()), (float) scaleFactor * ((float) v1.getY()), (float) scaleFactor * ((float) v2.getX()), (float) scaleFactor * ((float) v2.getY()), paint);
                     }
                 }
@@ -132,6 +137,8 @@ public class MyCanvas extends WebView {
         this.screenWidth = screenWidth;
     }
 
+    public void setOnLoad(boolean onLoad) {this.onLoad = onLoad;}
+
     public void setCanvasHeight(int canvasHeight) {
         this.canvasHeight = canvasHeight;
     }
@@ -147,6 +154,7 @@ public class MyCanvas extends WebView {
         int action = event.getAction();
 
         float scaleFactor = getScale()/initialScaleFactor;
+        Log.d("COORDS", this.getScrollX() + ":" + this.getScrollY());
         switch  (action) {
             case MotionEvent.ACTION_DOWN:
                 startClickTime = System.currentTimeMillis();
@@ -168,4 +176,10 @@ public class MyCanvas extends WebView {
         return super.onTouchEvent(event);
     }
 
+    public void scrollToUserLocation() {
+        if (campus.getUserLocationX() > 0 && campus.getUserLocationY() > 0 && campus.getUserLocationX() < canvasWidth & campus.getUserLocationY() < canvasHeight) {
+            float scaleFactor = getScale() / initialScaleFactor;
+            this.scrollTo((int) Math.round(scaleFactor * campus.getUserLocationX()), (int) Math.round(scaleFactor * campus.getUserLocationY()));
+        }
+    }
 }

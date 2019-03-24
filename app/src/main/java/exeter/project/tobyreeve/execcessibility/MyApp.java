@@ -6,6 +6,7 @@ import android.content.Context;
 public class MyApp extends Application {
     private static MyApp mAppInstance=null;
     public static Context appContext;
+    public static String serverIP = "192.168.43.122"; //129
     public static MyApp getInstance() {
         return mAppInstance;
     }
