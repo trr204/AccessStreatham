@@ -179,7 +179,7 @@ public class MyCanvas extends WebView {
     public void scrollToUserLocation() {
         if (campus.getUserLocationX() > 0 && campus.getUserLocationY() > 0 && campus.getUserLocationX() < canvasWidth & campus.getUserLocationY() < canvasHeight) {
             float scaleFactor = getScale() / initialScaleFactor;
-            this.scrollTo((int) Math.round(scaleFactor * campus.getUserLocationX()), (int) Math.round(scaleFactor * campus.getUserLocationY()));
+            this.scrollTo((int) Math.round(scaleFactor * campus.getUserLocationX()) - screenWidth/2, (int) Math.round(scaleFactor * campus.getUserLocationY()) - screenHeight/2);
         }
     }
 }

@@ -83,12 +83,15 @@ public class MainActivity extends AppCompatActivity {
         canvasHeight = tile.getHeight();*/
         DisplayMetrics displayMetrics = new DisplayMetrics();
         getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
-        canvas.setScreenHeight(displayMetrics.heightPixels);
+        int actionBarHeight = getSupportActionBar().getHeight();
+        canvas.setScreenHeight(displayMetrics.heightPixels-actionBarHeight);
         canvas.setScreenWidth(displayMetrics.widthPixels);
 
         Drawable d = getResources().getDrawable(R.drawable.full_map_19);
         canvasHeight = d.getIntrinsicHeight();
         canvasWidth = d.getIntrinsicWidth();
+        canvas.setCanvasHeight((int) canvasHeight);
+        canvas.setCanvasWidth((int) canvasWidth);
         canvas.setInitialScaleFactor(canvas.getScale());
         //getSupportActionBar().hide();
         FloatingActionButton planRouteFab = findViewById(R.id.plan_route_button);
