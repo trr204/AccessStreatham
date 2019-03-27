@@ -8,6 +8,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.CheckBox;
 import android.widget.SeekBar;
+import android.widget.Toast;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -84,6 +85,7 @@ public class Preferences extends AppCompatActivity {
         helper.updateUserPreference(helper.getWritableDatabase(), AVOID_STAIRCASES, ((SeekBar) prefsWidgetMap.get(AVOID_STAIRCASES)).getProgress());
         helper.updateUserPreference(helper.getWritableDatabase(), DISTANCE_OVER_ALTITUDE, ((SeekBar) prefsWidgetMap.get(DISTANCE_OVER_ALTITUDE)).getProgress());
         helper.updateUserPreference(helper.getWritableDatabase(), AVOID_INCIDENTS, ((CheckBox) prefsWidgetMap.get(AVOID_INCIDENTS)).isChecked() ? 1 : 0);
+        Toast.makeText(this, "Save successful!", Toast.LENGTH_SHORT).show();
         Log.d("SAVE PREFS", "Save successful!");
     }
 }

@@ -57,7 +57,7 @@ public class RouteSpecification extends AppCompatActivity {
         Map<String, Integer> vertexMap = new HashMap<String, Integer>();
         for (int i = 0; i < vCursor.getCount(); i++) {
             while (vCursor.moveToNext()) {
-                vertexMap.put(vCursor.getString(8), vCursor.getInt(0));
+                vertexMap.put(vCursor.getString(5), vCursor.getInt(0));
             }
         }
         List<String> vertices = new ArrayList<>(vertexMap.keySet());
