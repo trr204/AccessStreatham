@@ -320,6 +320,8 @@ public class MainActivity extends AppCompatActivity {
         canvas.postInvalidate();
         if (campus.getCalculatedPathList().size() == 1) {
             Toast.makeText(this, "Sorry, a path could not be found at the current time", Toast.LENGTH_LONG).show();
+        } else {
+            canvas.scrollToPathStart();
         }
         Log.d("PLANROUTE", "Route calculation finished, path size: " + String.valueOf(campus.getCalculatedPathList().size()));
     }

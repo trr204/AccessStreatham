@@ -182,4 +182,11 @@ public class MyCanvas extends WebView {
             this.scrollTo((int) Math.round(scaleFactor * campus.getUserLocationX()) - screenWidth/2, (int) Math.round(scaleFactor * campus.getUserLocationY()) - screenHeight/2);
         }
     }
+
+    public void scrollToPathStart() {
+        if (campus.getCalculatedPathList() != null && campus.getCalculatedPathList().get(0) != null) {
+            float scaleFactor = getScale() / initialScaleFactor;
+            this.scrollTo((int) Math.round(scaleFactor * campus.getCalculatedPathList().get(0).getX()) - screenWidth/2, (int) Math.round(scaleFactor * campus.getCalculatedPathList().get(0).getY()) - screenHeight/2);
+        }
+    }
 }
