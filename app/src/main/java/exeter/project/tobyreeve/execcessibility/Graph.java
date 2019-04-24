@@ -167,7 +167,7 @@ public class Graph {
                     if ((stairsPreference == 10 && s.isStairs()) || (neighbour.getIncident() != null && incidentsPreference == 1) || (neighbour.getIncident() != null && neighbour.getIncident().getDescription().contains("Cannot pass"))) {
                         tentativeG = Float.MAX_VALUE;
                     } else {
-                        tentativeG = (neighbourDistance[0] + (float) 0.5 * stairsPreference + (float) 0.5 * altitudePreference * elevationDifference) + currentVertex.getG();
+                        tentativeG = (neighbourDistance[0] + (s.isStairs() ? (float) 0.5 * stairsPreference : 0) + (float) 0.5 * altitudePreference * elevationDifference) + currentVertex.getG();
                     }
                     //If the approximated distance between start and neighbour is smaller than the currently stored distance between start and neighbour
                     if (tentativeG < neighbour.getG()) {
